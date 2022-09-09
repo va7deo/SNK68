@@ -340,6 +340,7 @@ reg invert_input;
 wire [7:0] invert_mask = { 8 {invert_input} } ;
 
 always @ (posedge clk_sys ) begin 
+    if ( pcb == 0 ) begin
     p1   <= { { 2 { invert_mask ^ ~{ start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } } };
     
     p2   <= { { 2 { invert_mask ^ ~{ start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } } };
@@ -348,7 +349,17 @@ always @ (posedge clk_sys ) begin
     
     dsw1 <=  ~{ { 2 { sw[0] } } };
     dsw2 <=  ~{ { 2 { sw[1] } } };
+    end else begin
+    p1   <= ~{ { 2 { start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } };
 
+    p2   <= ~{ { 2 { start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } };
+
+    coin <= ~{ { 2 { 2'b0, coin_b, coin_a, 2'b0, key_test, key_service } } };
+
+    dsw1 <=  ~{ { 2 { sw[0] } } };
+    dsw2 <=  ~{ { 2 { sw[1] } } };
+
+    end
 end
 
 wire        p1_right   = joy0[0] | key_p1_right;
@@ -909,8 +920,9 @@ always @ (posedge clk_sys) begin
                          m68k_fg_ram_cs ? m68k_fg_ram_dout :
                          m68k_pal_cs ? m68k_pal_dout :
                          m_invert_ctrl_cs ? 0 :
-                         input_p1_cs ? p1 :
-                         input_p2_cs ? p2 :
+                         (input_p1_cs & !input_p2_cs ) ? p1 :  
+                         (input_p2_cs & !input_p1_cs ) ? p2 :
+                         (input_p2_cs &  input_p1_cs ) ? { p2[7:0], p1[7:0] } :
                          input_dsw1_cs ? dsw1 :
                          input_dsw2_cs ? dsw2 :
                          input_coin_cs ? coin :
