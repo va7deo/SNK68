@@ -648,7 +648,8 @@ reg   [6:0] fg_colour;
 
 reg   [6:0] sprite_colour;
 reg  [14:0] sprite_tile_num;
-reg         sprite_flip;
+reg         sprite_flip_x;
+reg         sprite_flip_y;
 reg   [1:0] sprite_group;
 reg   [4:0] sprite_col;
 reg  [15:0] sprite_col_x;
@@ -656,15 +657,16 @@ reg  [15:0] sprite_col_y;
 reg   [8:0] sprite_col_idx;
 reg   [8:0] spr_x_pos;
 reg   [3:0] spr_x_ofs;
-wire  [3:0] spr_x_ofs_flipped = sprite_flip ? ~spr_x_ofs : spr_x_ofs ;
 
 reg   [1:0] sprite_layer;
 wire  [1:0] layer_order [3:0] = '{2'd2,2'd3,2'd1,2'd0};
 
-wire  [3:0] spr_pen = { spr_pix_data[24+spr_x_ofs_flipped[2:0]], 
-                        spr_pix_data[16+spr_x_ofs_flipped[2:0]], 
-                        spr_pix_data[ 8+spr_x_ofs_flipped[2:0]], 
-                        spr_pix_data[ 0+spr_x_ofs_flipped[2:0]] };
+wire  [3:0] spr_pen = { spr_pix_data[24 + { 3 { sprite_flip_x } } ^ spr_x_ofs[2:0]], 
+                        spr_pix_data[16 + { 3 { sprite_flip_x } } ^ spr_x_ofs[2:0]], 
+                        spr_pix_data[ 8 + { 3 { sprite_flip_x } } ^ spr_x_ofs[2:0]], 
+                        spr_pix_data[ 0 + { 3 { sprite_flip_x } } ^ spr_x_ofs[2:0]] }  ;
+
+//reg [3:0] sprite_col_idx_flipped ;
 
 always @ (posedge clk_sys) begin
     if ( reset == 1 ) begin
@@ -773,10 +775,10 @@ always @ (posedge clk_sys) begin
             sprite_col_idx <= sp_y + sprite_col_y[8:0] ;
             sprite_state <= 6;
         end else if ( sprite_state == 6 )  begin
-
             // setup sprite tile colour read
             sprite_ram_addr <= { sprite_group[1:0], sprite_col[4:0], sprite_col_idx[8:4], 1'b0 };
             sprite_state <= 7;
+            
         end else if ( sprite_state == 7 ) begin
             // setup sprite tile index read
             sprite_ram_addr <= sprite_ram_addr + 1 ;
@@ -788,14 +790,20 @@ always @ (posedge clk_sys) begin
         end else if ( sprite_state == 9 ) begin
             // tile index ready
             sprite_tile_num <= sprite_ram_dout[14:0] ;  // 0x7fff
-            sprite_flip     <= sprite_ram_dout[15] ;    // 0x8000
+            sprite_flip_x   <= sprite_ram_dout[15] & ~spr_flip_orientation ;  // 0x8000
+            sprite_flip_y   <= sprite_ram_dout[15] &  spr_flip_orientation;   // 0x8000
             spr_x_ofs <= 0;
             spr_x_pos <= { sprite_col_x[7:0], sprite_col_y[15:12] } ;
             sprite_state <= 10;
         end else if ( sprite_state == 10 )  begin    
+
+            // sprite_rom_addr <= { tile[10:0], ~dx[3], dy[3:0] } ;
+            case ( { sprite_flip_y, sprite_flip_x } )
+                2'b00: sprite_rom_addr <= { sprite_tile_num, ~spr_x_ofs[3],  sprite_col_idx[3:0] } ;
+                2'b01: sprite_rom_addr <= { sprite_tile_num,  spr_x_ofs[3],  sprite_col_idx[3:0] } ;
+                2'b10: sprite_rom_addr <= { sprite_tile_num, ~spr_x_ofs[3], ~sprite_col_idx[3:0] } ;
+            endcase 
             
-            // sprite_rom_addr <= { tile[10:0], ~dx[3], dy[3:0], 1'b0 } ;
-            sprite_rom_addr <= { sprite_tile_num, ~spr_x_ofs_flipped[3], sprite_col_idx[3:0] } ; // 1'b0
             sprite_rom_cs <= 1;
             sprite_state <= 11;
         end else if ( sprite_state == 11 ) begin
@@ -882,6 +890,7 @@ always @ (posedge clk_sys) begin
     end
 end
 
+reg spr_flip_orientation ;
 
 /// 68k cpu
 always @ (posedge clk_sys) begin
@@ -892,7 +901,7 @@ always @ (posedge clk_sys) begin
         z80_irq_n <= 1 ;
         invert_input <= 0;
         m68k_latch <= 0;
-        
+        spr_flip_orientation <= 0;
     end else begin
         if ( clk_18M == 1 ) begin
             // tell 68k to wait for valid data. 0=ready 1=wait
@@ -926,6 +935,10 @@ always @ (posedge clk_sys) begin
                     m68k_latch <= m68k_dout[7:0];
                     z80_nmi_n <= 0 ;
                 end
+                
+                if ( m68k_spr_flip_cs == 1 ) begin
+                    spr_flip_orientation <= m68k_dout[2] ;
+                end
  
                 if ( m_invert_ctrl_cs == 1 ) begin
                     invert_input <= ( m68k_dout[7:0] == 8'h07 ) ;
@@ -947,7 +960,7 @@ wire    m68k_ram_cs;
 wire    m68k_pal_cs;
 wire    m68k_spr_cs;
 wire    m68k_fg_ram_cs;
-wire    m68k_fg_mirror_cs;
+wire    m68k_spr_flip_cs;
 wire    input_p1_cs;
 wire    input_p2_cs;
 wire    input_coin_cs;
@@ -986,8 +999,8 @@ chip_select cs (
     .m68k_rom_2_cs,
     .m68k_ram_cs,
     .m68k_spr_cs,
+    .m68k_spr_flip_cs,
     .m68k_fg_ram_cs,
-    .m68k_fg_mirror_cs,
     .m68k_pal_cs,
 
     .input_p2_cs,
@@ -1381,7 +1394,7 @@ wire [15:0] m68k_fg_ram_dout;
 dual_port_ram #(.LEN(2048)) ram_fg_h (
     .clock_a ( clk_18M ),
     .address_a ( m68k_a[11:1] ),
-    .wren_a ( !m68k_rw & ( m68k_fg_ram_cs | m68k_fg_mirror_cs ) & !m68k_uds_n ), // can write to m68k_fg_mirror_cs but not read
+    .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_uds_n ), // can write to m68k_fg_mirror_cs but not read
     .data_a ( m68k_dout[15:8]  ),
     .q_a ( m68k_fg_ram_dout[15:8] ),
 
@@ -1397,7 +1410,7 @@ dual_port_ram #(.LEN(2048)) ram_fg_h (
 dual_port_ram #(.LEN(2048)) ram_fg_l (
     .clock_a ( clk_18M ),
     .address_a ( m68k_a[11:1] ),
-    .wren_a ( !m68k_rw & ( m68k_fg_ram_cs | m68k_fg_mirror_cs ) & !m68k_lds_n ),
+    .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
     .q_a ( m68k_fg_ram_dout[7:0] ),
      
