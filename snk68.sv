@@ -340,6 +340,7 @@ reg invert_input;
 wire [7:0] invert_mask = { 8 {invert_input} } ;
 
 always @ (posedge clk_sys ) begin 
+    if ( pcb == 0 ) begin
     p1   <= { { 2 { invert_mask ^ ~{ start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } } };
     
     p2   <= { { 2 { invert_mask ^ ~{ start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } } };
@@ -348,7 +349,17 @@ always @ (posedge clk_sys ) begin
     
     dsw1 <=  ~{ { 2 { sw[0] } } };
     dsw2 <=  ~{ { 2 { sw[1] } } };
+    end else begin
+    p1   <= ~{ { 2 { start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } };
 
+    p2   <= ~{ { 2 { start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } };
+
+    coin <= ~{ { 2 { 2'b0, coin_b, coin_a, 2'b0, key_test, key_service } } };
+
+    dsw1 <=  ~{ { 2 { sw[0] } } };
+    dsw2 <=  ~{ { 2 { sw[1] } } };
+
+    end
 end
 
 wire        p1_right   = joy0[0] | key_p1_right;
@@ -603,18 +614,7 @@ arcade_video #(256,24) arcade_video
 
 screen_rotate screen_rotate (.*);
 
-
-
-//    .address_a ( bg_tilemap_addr[15:0] ),
-//    .q_a ( bg_tilemap_dout[7:0] )
-
-
 reg [7:0] hc_del;
-
-//wire [11:0] pal  [0:15] = '{12'h000,12'hbbb,12'hc00,12'h0c0,12'h00c,12'hc30,12'hcc0,12'h08c,12'hc60,12'hc80,12'hcc0,12'hc30,12'h0c6,12'h07c,12'hc57,12'h666};
-//wire [11:0] pal2 [0:15] = '{12'ha00,12'hc11,12'he42,12'hf74,12'h121,12'h242,12'h362,12'h583,12'h694,12'h9b5,12'h100,12'hcd7,12'hee9,12'h400,12'hfff,12'h000};
-//wire [11:0] pal3 [0:15] = '{12'h541,12'h975,12'h482,12'h251,12'h121,12'h6ed,12'h0cb,12'h0a9,12'h087,12'h065,12'h9cf,12'h6ae,12'h38d,12'h06c,12'h04b,12'h000};
-wire [23:0] pal4 [0:15] = '{24'h000000,24'h986d5f,24'h925f49,24'h6d4934,24'h560000,24'h0000ff,24'hff00ff,24'h564100,24'h4f4f4f,24'hffff00,24'h00ffff,24'hff0000,24'h494949,24'h343434,24'h8a0000,24'h5f00ff};
 
 reg [4:0] tile_state;
 reg [4:0] sprite_state;
@@ -912,12 +912,11 @@ always @ (posedge clk_sys) begin
                          m_invert_ctrl_cs ? 0 :
                          (input_p1_cs & !input_p2_cs ) ? p1 :  
                          (input_p2_cs & !input_p1_cs ) ? p2 :
-                         (input_p2_cs &  input_p1_cs ) ? { p2, p1 } :
+                         (input_p2_cs &  input_p1_cs ) ? { p2[7:0], p1[7:0] } :
                          input_dsw1_cs ? dsw1 :
                          input_dsw2_cs ? dsw2 :
                          input_coin_cs ? coin :
                          z80_latch_read_cs ? { z80_latch, z80_latch } :
-                         
                          16'd0;
                          
             // write asserted and rising cpu clock
