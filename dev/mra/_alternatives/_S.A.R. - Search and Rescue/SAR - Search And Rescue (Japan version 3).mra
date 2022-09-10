@@ -56,8 +56,8 @@
             <part name="bh.c2" crc="7c803767" map="2100"/>
         </interleave>
         <interleave output="32">
-            <part name="bh.c3" crc="fd8bc407" map="2100"/>
-            <part name="bh.c4" crc="eede7c43" map="0021"/>
+            <part name="bh.c3" crc="fd8bc407" map="0021"/>
+            <part name="bh.c4" crc="eede7c43" map="2100"/>
         </interleave>
         <interleave output="32">
             <part name="bh.c5" crc="1d30acc3" map="0021"/>
