@@ -192,7 +192,7 @@ assign VGA_SCALER = 0;
 assign HDMI_FREEZE = 0;
 
 assign AUDIO_MIX = 0;
-assign LED_USER =  | fg_tile & | sprite_ram_dout ;
+assign LED_USER =  sprite_overrun ;
 assign LED_DISK = 0;
 assign LED_POWER = 0;
 assign BUTTONS = 0;
@@ -670,6 +670,8 @@ always @ (posedge clk_sys) begin
     if ( reset == 1 ) begin
         tile_state   <= 0;
         sprite_state <= 0;
+        sprite_overrun <= 0;
+        sprite_rom_cs <= 0;
     end else begin
 
         // tiles
@@ -721,7 +723,7 @@ always @ (posedge clk_sys) begin
         // sprites. -- need 3 sprite layers
         if ( sprite_state == 0 && hc == 0 ) begin
             // init
-            sprite_state <= 21;
+            sprite_state <= 21; // 21 = clear buffer, 22 = don't
             sprite_num <= 0;
             sprite_layer <= 0;
             // setup clearing line buffer
@@ -747,10 +749,6 @@ always @ (posedge clk_sys) begin
             sprite_state <= 1;
         end else if ( sprite_state == 1 )  begin
             spr_buf_w <= 0 ;
-//            var col_ofs = group * 2 + col * 0x40;
-//            
-//            var w0 = m_spriteram[col_ofs];
-//            var w1 = m_spriteram[col_ofs + 1];   
 
             // setup x read
             sprite_ram_addr <= { sprite_col, 3'b0, sprite_group, 1'b0 } ; 
@@ -789,7 +787,7 @@ always @ (posedge clk_sys) begin
             sprite_state <= 9;
         end else if ( sprite_state == 9 ) begin
             // tile index ready
-            sprite_tile_num <= sprite_ram_dout[14:0] ; // 0x7fff
+            sprite_tile_num <= sprite_ram_dout[14:0] ;  // 0x7fff
             sprite_flip     <= sprite_ram_dout[15] ;    // 0x8000
             spr_x_ofs <= 0;
             spr_x_pos <= { sprite_col_x[7:0], sprite_col_y[15:12] } ;
@@ -810,7 +808,7 @@ always @ (posedge clk_sys) begin
         end else if ( sprite_state == 12 ) begin                    
             spr_buf_addr_w <= { vc[0], spr_x_pos };
             
-            spr_buf_w <=  | spr_pen ; // don't write if 0 - transparent
+            spr_buf_w <= | spr_pen  ; // don't write if 0 - transparent
 
             spr_buf_din <= { sprite_colour, spr_pen };
 
@@ -829,8 +827,9 @@ always @ (posedge clk_sys) begin
        
         end else if ( sprite_state == 17) begin             
             spr_buf_w <= 0 ;
-            if ( hc > 350 ) begin
+            if ( hc > 360 ) begin
                 sprite_state <= 0;  
+                sprite_overrun <= 1;
             end else if ( sprite_col < 31 ) begin
                 sprite_col <= sprite_col + 1;
                 sprite_state <= 1; 
@@ -847,6 +846,8 @@ always @ (posedge clk_sys) begin
     end
 end
         
+reg sprite_overrun;
+
 reg [10:0] fg;
 reg [10:0] sp;
 
@@ -909,8 +910,9 @@ always @ (posedge clk_sys) begin
                          m68k_fg_ram_cs ? m68k_fg_ram_dout :
                          m68k_pal_cs ? m68k_pal_dout :
                          m_invert_ctrl_cs ? 0 :
-                         input_p1_cs ? p1 :
-                         input_p2_cs ? p2 :
+                         (input_p1_cs & !input_p2_cs ) ? p1 :  
+                         (input_p2_cs & !input_p1_cs ) ? p2 :
+                         (input_p2_cs &  input_p1_cs ) ? { p2, p1 } :
                          input_dsw1_cs ? dsw1 :
                          input_dsw2_cs ? dsw2 :
                          input_coin_cs ? coin :
@@ -1624,17 +1626,17 @@ rom_controller rom_controller
     .clk(clk_sys),
 
     // program ROM interface
-    .prog_rom_cs(m68k_rom_cs),
-    .prog_rom_oe(1),
-    .prog_rom_addr(m68k_a[23:1]),
-    .prog_rom_data(m68k_rom_data),
-    .prog_rom_data_valid(m68k_rom_valid),
-
-//    .prog_rom_cs(prog_cache_rom_cs),
+//    .prog_rom_cs(m68k_rom_cs),
 //    .prog_rom_oe(1),
-//    .prog_rom_addr(prog_cache_addr),
-//    .prog_rom_data(prog_cache_data),
-//    .prog_rom_data_valid(prog_cache_valid),
+//    .prog_rom_addr(m68k_a[23:1]),
+//    .prog_rom_data(m68k_rom_data),
+//    .prog_rom_data_valid(m68k_rom_valid),
+
+    .prog_rom_cs(prog_cache_rom_cs),
+    .prog_rom_oe(1),
+    .prog_rom_addr(prog_cache_addr),
+    .prog_rom_data(prog_cache_data),
+    .prog_rom_data_valid(prog_cache_valid),
 
     .prog_rom_2_cs(m68k_rom_2_cs),
     .prog_rom_2_oe(1),
@@ -1679,25 +1681,45 @@ rom_controller rom_controller
     .sdram_q(sdram_q)
   );
 
-//cache prog_cache
+cache prog_cache
+(
+    .reset(reset),
+    .clk(clk_sys),
+
+    // client
+    .cache_req(m68k_rom_cs),
+    .cache_addr(m68k_a[23:1]),
+    .cache_valid(m68k_rom_valid),
+    .cache_data(m68k_rom_data),
+
+    // to rom controller
+    .rom_req(prog_cache_rom_cs),
+    .rom_addr(prog_cache_addr),
+    .rom_valid(prog_cache_valid),
+    .rom_data(prog_cache_data)
+); 
+
+  
+//tile_cache tile_cache
 //(
-//    .reset(reset),
 //    .clk(clk_sys),
+//    .reset(reset),
 //
 //    // client
-//    .cache_req(m68k_rom_cs),
-//    .cache_addr(m68k_a[23:1]),
-//    .cache_valid(m68k_rom_valid),
-//    .cache_data(m68k_rom_data),
+//    .cache_req(sprite_rom_cs),
+//    .cache_addr(sprite_rom_addr),
+//    .cache_data(sprite_rom_data),
+//    .cache_valid(sprite_rom_valid),
 //
 //    // to rom controller
-//    .rom_req(prog_cache_rom_cs),
-//    .rom_addr(prog_cache_addr),
-//    .rom_valid(prog_cache_valid),
-//    .rom_data(prog_cache_data)
+//    .rom_req(sprite_cache_cs),
+//    .rom_addr(sprite_cache_addr),
+//    .rom_data(sprite_cache_data),
+//    .rom_valid(sprite_cache_valid)
+//
 //); 
 
-//    
+
 reg  [22:0] sdram_addr;
 reg  [31:0] sdram_data;
 reg         sdram_we;
@@ -1737,19 +1759,3 @@ sdram #(.CLK_FREQ( (CLKSYS+0.0))) sdram
 
 endmodule
 
-//module delay
-//(
-//    input clk,
-//    input i,
-//    output o
-//);
-//
-//reg [5:0] r;
-//
-//assign o = r[5]; 
-//
-//always @(posedge clk) begin
-//    r <= { r[4:0], i };
-//end
-
-//endmodule
