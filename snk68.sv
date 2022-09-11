@@ -691,7 +691,7 @@ always @ (posedge clk_sys) begin
         // addr = (t << 4) + dy + (( dx < 4) ? 8 : 0 ) ;
         
             fg_rom_addr <= { fg_ram_dout[10:0], ~fg_x[2], fg_y[2:0] } ;
-            fg_colour   <=   fg_ram_dout[14:12];
+            fg_colour   <=   fg_ram_dout[15:12];
             tile_state <= 4;
         end else if ( tile_state == 4) begin             
             // address is valid - need more more cycle to read 
@@ -877,7 +877,7 @@ always @ (posedge clk_sys) begin
                 rgb <= 0;
                 pen_valid <= 0;
             end else if ( clk6_count == 3 ) begin
-                pen <= ( fg[3:0] == 0 ) ? sp[10:0] : fg[10:0];
+                pen <= ( fg[3:0] == 0 && fg[7] == 0 ) ? sp[10:0] : fg[6:0];
                 pen_valid <= 1;
             end else if ( clk6_count == 5 ) begin
                 tile_pal_addr <= pen[10:0] ;
@@ -1655,19 +1655,19 @@ rom_controller rom_controller
     .prog_rom_2_addr(m68k_a[23:1]),
     .prog_rom_2_data(m68k_rom_2_data),
     .prog_rom_2_data_valid(m68k_rom_2_valid),
-    
+
     // sprite ROM interface
-    .sprite_rom_cs(sprite_rom_cs),
-    .sprite_rom_oe(1),
-    .sprite_rom_addr(sprite_rom_addr),
-    .sprite_rom_data(sprite_rom_data),
-    .sprite_rom_data_valid(sprite_rom_valid),
-    
-//    .sprite_rom_cs(sprite_cache_cs),
+//    .sprite_rom_cs(sprite_rom_cs),
 //    .sprite_rom_oe(1),
-//    .sprite_rom_addr(sprite_cache_addr),
-//    .sprite_rom_data(sprite_cache_data),
-//    .sprite_rom_data_valid(sprite_cache_valid),
+//    .sprite_rom_addr(sprite_rom_addr),
+//    .sprite_rom_data(sprite_rom_data),
+//    .sprite_rom_data_valid(sprite_rom_valid),
+    
+    .sprite_rom_cs(sprite_cache_cs),
+    .sprite_rom_oe(1),
+    .sprite_rom_addr(sprite_cache_addr),
+    .sprite_rom_data(sprite_cache_data),
+    .sprite_rom_data_valid(sprite_cache_valid),
     
     // sound samples ROM interface
     .sound_rom_cs(upd_rom_cs),
@@ -1700,7 +1700,7 @@ cache prog_cache
 
     // client
     .cache_req(m68k_rom_cs),
-    .cache_addr(m68k_a[23:1]),
+    .cache_addr(m68k_a[17:1]),
     .cache_valid(m68k_rom_valid),
     .cache_data(m68k_rom_data),
 
@@ -1711,25 +1711,24 @@ cache prog_cache
     .rom_data(prog_cache_data)
 ); 
 
-  
-//tile_cache tile_cache
-//(
-//    .clk(clk_sys),
-//    .reset(reset),
-//
-//    // client
-//    .cache_req(sprite_rom_cs),
-//    .cache_addr(sprite_rom_addr),
-//    .cache_data(sprite_rom_data),
-//    .cache_valid(sprite_rom_valid),
-//
-//    // to rom controller
-//    .rom_req(sprite_cache_cs),
-//    .rom_addr(sprite_cache_addr),
-//    .rom_data(sprite_cache_data),
-//    .rom_valid(sprite_cache_valid)
-//
-//); 
+tile_cache tile_cache
+(
+    .clk(clk_sys),
+    .reset(reset),
+
+    // client
+    .cache_req(sprite_rom_cs),
+    .cache_addr(sprite_rom_addr),
+    .cache_data(sprite_rom_data),
+    .cache_valid(sprite_rom_valid),
+
+    // to rom controller
+    .rom_req(sprite_cache_cs),
+    .rom_addr(sprite_cache_addr),
+    .rom_data(sprite_cache_data),
+    .rom_valid(sprite_cache_valid)
+
+); 
 
 
 reg  [22:0] sdram_addr;
