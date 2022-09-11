@@ -238,6 +238,7 @@ localparam CONF_STR = {
     "P1-;",
     "P1OOR,H-sync Pos Adj,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "P1OSV,V-sync Pos Adj,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
+    "P1-;",
     "P1oOR,H-sync Width Adj,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "P1oSV,V-sync Width Adj,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "P1-;",
@@ -1315,8 +1316,8 @@ jt7759 upd
 
 always @ * begin
     // mix audio
-    AUDIO_L <= sample ;
-    AUDIO_R <= upd_sample ;
+    AUDIO_L <= ( sample + upd_sample ) >>> 1;
+    AUDIO_R <= ( sample + upd_sample ) >>> 1;
 end
 
 reg [7:0] dac1;

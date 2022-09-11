@@ -162,7 +162,7 @@ always @ (*) begin
     m68k_spr_cs      <= m68k_cs( 24'h200000, 24'h207fff ) ;
 
 //	map(0x100000, 0x100fff).rw(FUNC(snk68_state::fg_videoram_r), FUNC(snk68_state::fg_videoram_w)).mirror(0x1000).share("fg_videoram");
-    m68k_fg_ram_cs   <= m68k_cs( 24'h100000, 24'h100fff)  | m68k_cs( 24'h101000, 24'h101fff );
+    m68k_fg_ram_cs   <= m68k_cs( 24'h100000, 24'h100fff ) | m68k_cs( 24'h101000, 24'h101fff );
 
 //	map(0x400000, 0x400fff).rw(m_palette, FUNC(alpha68k_palette_device::read), FUNC(alpha68k_palette_device::write));
     m68k_pal_cs      <= m68k_cs( 24'h400000, 24'h400fff ) ;
