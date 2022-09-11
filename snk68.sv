@@ -789,9 +789,15 @@ always @ (posedge clk_sys) begin
             sprite_state <= 9;
         end else if ( sprite_state == 9 ) begin
             // tile index ready
-            sprite_tile_num <= sprite_ram_dout[14:0] ;  // 0x7fff
-            sprite_flip_x   <= sprite_ram_dout[15] & ~spr_flip_orientation ;  // 0x8000
-            sprite_flip_y   <= sprite_ram_dout[15] &  spr_flip_orientation;   // 0x8000
+            if (pcb == 0) begin
+                sprite_tile_num <= sprite_ram_dout[14:0] ;  // 0x7fff
+                sprite_flip_x   <= sprite_ram_dout[15] & ~spr_flip_orientation ;  // 0x8000
+                sprite_flip_y   <= sprite_ram_dout[15] &  spr_flip_orientation;   // 0x8000
+            end else begin
+                sprite_tile_num <= sprite_ram_dout[13:0] ;  // 0x3fff
+                sprite_flip_x   <= sprite_ram_dout[14] & ~spr_flip_orientation ;  // 0x4000
+                sprite_flip_y   <= sprite_ram_dout[15] &  spr_flip_orientation;   // 0x8000
+            end
             spr_x_ofs <= 0;
             spr_x_pos <= { sprite_col_x[7:0], sprite_col_y[15:12] } ;
             sprite_state <= 10;
