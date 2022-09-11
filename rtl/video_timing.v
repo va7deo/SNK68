@@ -33,9 +33,9 @@ wire [8:0] HTOTAL     = 383;
 wire [8:0] v_ofs = 0;
 wire [8:0] VBL_START  = 241 ;
 wire [8:0] VBL_END    = 17 ;
-wire [8:0] VS_START   = VBL_START + 23 + $signed(vs_offset) + $signed(vs_width);
-wire [8:0] VS_END     = VBL_START + 31 + $signed(vs_offset) + $signed(vs_width);
-wire [8:0] VTOTAL     = 288 ;
+wire [8:0] VS_START   = VBL_START + 13 + $signed(vs_offset) + $signed(vs_width);
+wire [8:0] VS_END     = VBL_START + 21 + $signed(vs_offset) + $signed(vs_width);
+wire [8:0] VTOTAL     = 264 ;
 
 reg [8:0] v;
 reg [8:0] h;

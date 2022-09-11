@@ -1,104 +1,103 @@
+///----------------------------------------------------------------------------
+//
+//  Copyright 2022 Darren Olafson
+//
+//  MiSTer Copyright (C) 2017 Sorgelig
+//
+//  This program is free software; you can redistribute it and/or modify it
+//  under the terms of the GNU General Public License as published by the Free
+//  Software Foundation; either version 2 of the License, or (at your option)
+//  any later version.
+//
+//  This program is distributed in the hope that it will be useful, but WITHOUT
+//  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+//  more details.
+//
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+//----------------------------------------------------------------------------
+
 
 // simple read-only cache 
-// todo - parameterize 
+// specificly for 68k program rom.  todo - parameterize 
 module cache
 (
     input reset,
     input clk,
 
     input cache_req,
-    input [22:0] cache_addr,
+    input [16:0] cache_addr,
 
     output reg cache_valid,
-    output reg [15:0] cache_data,
+    output [15:0] cache_data,
 
     input  [15:0] rom_data,
     input  rom_valid,
     
     output reg rom_req,
-    output reg [22:0] rom_addr
+    output reg [16:0] rom_addr
 );
 
-reg [1023:0] valid ;
-reg [2:0]   state = 0;
 
-reg  [9:0] idx_w;
-wire [9:0] idx = cache_addr[9:0];
+reg [16:9]   tag   [511:0];
+reg [511:0]  valid ;
+reg [1:0]    state = 0;
+
+reg  [8:0]   idx_r;
+
+wire [8:0]   idx = cache_addr[8:0];
 wire hit;
-
-reg [12:0]  tag_din;   // 22:10
-reg [12:0]  tag_dout;
-
-reg cache_w;
 
 // if tag value matches the upper bits of the address 
 // and valid then no need to pass request to sdram 
-// assign hit = ( tag_dout[12:0] == cache_addr[22:10] && valid[idx] == 1 && state == 1 );
+assign hit = ( tag[idx] == cache_addr[16:9] && valid[idx] == 1 && state == 1 );
 
-// assign cache_data = ( hit == 1 ) ? cache_dout : rom_data;
+
+assign cache_data = ( hit == 1 ) ? cache_dout : rom_data;
 
 always @ (posedge clk) begin
-
+    cache_valid <= ( cache_req != 0 ) && ( hit == 1 || rom_valid == 1 );
     if ( reset == 1 ) begin
-        state   <= 0;
-        rom_req <= 0;
-        cache_valid <= 0;
+        state <= 0;
         // reset bits that indicate tag is valid
         valid <= 0;
     end else begin
-        // wait for read request 
-        if ( state == 0 ) begin
-            // only initiate on state 0
-            if ( cache_req == 1 ) begin
-                if ( valid[idx] == 0 ) begin
-                    // need to read from rom
+        // if no read request then do nothing
+        if ( cache_req == 0 ) begin
+            rom_req <= 0;
+            state <= 1;
+        end else begin
+            // if there is a hit then read from cache and say we are done
+            if ( hit == 1 ) begin
+                rom_req <= 0;
+            end else if ( state == 1 ) begin
+                // read from memory
 
-                    cache_valid <= 0 ;
-                    idx_w <= idx;
-                    
-                    // we need to read from sdram
-                    rom_req  <= 1;
-                    rom_addr <= cache_addr;
-
-                    state <= 2;
-                end else begin
-                    // might be valid.  check tag
-                    state <= 1;
-                end
-            end
-        end else if ( state == 1 ) begin
-            if ( tag_dout[12:0] == cache_addr[22:10] ) begin
-                cache_valid <= 1 ;
-                cache_data <= cache_dout ;
-                state <= 0;
-            end else begin
-                cache_valid <= 0 ;
-                idx_w <= idx;
+                idx_r <= idx;
                 
                 // we need to read from sdram
                 rom_req <= 1;
                 rom_addr <= cache_addr;
 
+                // next state is wait for rom ready
                 state <= 2;
-            end
-        end else if ( state == 2 && rom_valid == 1 ) begin
-            // cancel rom read
-            rom_req <= 0;
-            valid[idx_w] <= 1;
-            
-            cache_valid <= 1 ;
-            cache_data <= rom_data;
-            
-            // write updated tag
-            tag_din <= rom_addr[22:10] ; // addr
-            cache_din <= rom_data;
+                
+            end else if ( state == 2 && rom_valid == 1 ) begin
 
-            cache_w <= 1;
-            
-            state <= 3;
-        end else if ( state == 3 ) begin
-            cache_w <= 0;
-            state <= 0;
+                // write updated tag
+                tag[idx_r] <= rom_addr[16:9];
+                // mark tag valid
+                valid[idx_r] <= 1'b1;
+
+                cache_din <= rom_data;
+                
+                state <= 3;
+            end else if ( state == 3 ) begin
+                state <= 0;
+            end
         end
     end
 end
@@ -106,24 +105,10 @@ end
 reg  [15:0] cache_din;
 wire [15:0] cache_dout;
 
-// could be one wider ram
-dual_port_ram #(.LEN(1024), .DATA_WIDTH(16)) tag_ram (
+dual_port_ram #(.LEN(512), .DATA_WIDTH(16)) cache_ram (
     .clock_a ( clk ),
-    .address_a ( idx_w ),
-    .wren_a ( cache_w  ),
-    .data_a ( tag_din ),
-    .q_a (  ),
-
-    .clock_b ( clk ),
-    .address_b ( idx ),
-    .wren_b ( 0 ),
-    .q_b ( tag_dout )
-    );
-    
-dual_port_ram #(.LEN(1024), .DATA_WIDTH(16)) cache_ram (
-    .clock_a ( clk ),
-    .address_a ( idx_w ),
-    .wren_a ( cache_w ),
+    .address_a ( idx_r ),
+    .wren_a ( state == 3 ),
     .data_a ( cache_din ),
     .q_a (  ),
 
