@@ -26,16 +26,17 @@ module video_timing
 wire [8:0] h_ofs = 0;
 wire [8:0] HBL_START  = 256 ;
 wire [8:0] HBL_END    = 0 ;
-wire [8:0] HS_START   = HBL_START + 41 + $signed(hs_offset) + $signed(hs_width);
+wire [8:0] HS_START   = HBL_START + 41 + $signed(hs_offset);
 wire [8:0] HS_END     = HBL_START + 73 + $signed(hs_offset) + $signed(hs_width);
 wire [8:0] HTOTAL     = 383;
 
 wire [8:0] v_ofs = 0;
 wire [8:0] VBL_START  = 241 ;
 wire [8:0] VBL_END    = 17 ;
-wire [8:0] VS_START   = VBL_START + 13 + $signed(vs_offset) + $signed(vs_width);
+wire [8:0] VS_START   = VBL_START + 13 + $signed(vs_offset);
 wire [8:0] VS_END     = VBL_START + 21 + $signed(vs_offset) + $signed(vs_width);
-wire [8:0] VTOTAL     = 264 ;
+wire [8:0] VTOTAL     = 263 ;
+
 
 reg [8:0] v;
 reg [8:0] h;
