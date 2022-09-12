@@ -26,7 +26,7 @@
     <buttons names="Kick,Jump,Punch,P1 Start,P2 Start,Coin A,Coin B,Pause" default="A,B,X,Y,R,L,Start"/>
 
     <rom index="1">
-        <part>01</part>
+        <part>02</part>
     </rom>
 
     <rom index="0" zip="streetsm.zip" md5="None">

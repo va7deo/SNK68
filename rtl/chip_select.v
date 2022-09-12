@@ -67,7 +67,8 @@ end
 endfunction
 
 localparam pcb_A7007_A8007     = 0;  // [ikari3], [searchar], [streetsmj, streetsm1, streetsmw] - Ikari III, S.A.R., and Street Smart V1 (mame nomenclature, would be V2)
-localparam pcb_A7008           = 1;  // [pow], [streetsm] - P.O.W. and Street Smart V2 (mame nomenclature, would be V1)
+localparam pcb_A7008           = 1;  // [pow] - P.O.W.
+localparam pcb_A7008_SS        = 2;  // [streetsm] - Street Smart V2 (mame nomenclature, would be V1)
 
 always @ (*) begin
     // Memory mapping based on PCB type
@@ -179,6 +180,58 @@ always @ (*) begin
     z80_upd_r_cs     <= z80_io_cs(8'h80); // 7759 reset
 
         end
+
+        pcb_A7008_SS: begin
+// 	map(0x000000, 0x03ffff).rom();
+    m68k_rom_cs      <= m68k_cs( 24'h000000, 24'h03ffff ) ;
+
+//	map(0x040000, 0x043fff).ram();
+    m68k_ram_cs      <= m68k_cs( 24'h040000, 24'h043fff ) ;
+
+//  write only
+//	map(0x080000, 0x080000).w(FUNC(snk68_state::sound_w));
+    m68k_latch_cs   <= m68k_cs( 24'h080000, 24'h080001 ) & !m68k_rw ;
+
+//	map(0x0c0000, 0x0c0001).portr("SYSTEM");
+    input_coin_cs    <= m68k_cs( 24'h0c0000, 24'h0c0001 ) & m68k_rw ;
+
+    m68k_spr_flip_cs <= m68k_cs( 24'h0c0000, 24'h0c0001 ) & !m68k_rw;
+
+//  read only
+//	map(0x080000, 0x080000).lr8(NAME([this] () -> u8 { return m_p2_io->read(); }));
+    input_p2_cs      <= m68k_cs( 24'h080000, 24'h080001 ) & m68k_rw ;
+
+//  read only
+//	map(0x080001, 0x080001).lr8(NAME([this] () -> u8 { return m_p1_io->read(); }));
+    input_p1_cs      <= m68k_cs( 24'h080000, 24'h080001 ) ;
+
+//	map(0x0f0000, 0x0f0001).portr("DSW1");
+    input_dsw1_cs    <= m68k_cs( 24'h0f0000, 24'h0f0001 ) ;
+    
+//	map(0x0f0008, 0x0f0009).portr("DSW2");
+    input_dsw2_cs    <= m68k_cs( 24'h0f0008, 24'h0f0009 ) ;
+
+//	map(0x200000, 0x207fff).rw(m_sprites, FUNC(snk68_spr_device::spriteram_r), FUNC(snk68_spr_device::spriteram_w)).share("spriteram");   // only partially populated
+    m68k_spr_cs      <= m68k_cs( 24'h200000, 24'h207fff ) ;
+
+//	map(0x100000, 0x100fff).rw(FUNC(snk68_state::fg_videoram_r), FUNC(snk68_state::fg_videoram_w)).mirror(0x1000).share("fg_videoram");
+    m68k_fg_ram_cs   <= m68k_cs( 24'h100000, 24'h100fff ) | m68k_cs( 24'h101000, 24'h101fff );
+
+//	map(0x400000, 0x400fff).rw(m_palette, FUNC(alpha68k_palette_device::read), FUNC(alpha68k_palette_device::write));
+    m68k_pal_cs      <= m68k_cs( 24'h400000, 24'h400fff ) ;
+
+//	snk68_state::sound_map(address_map &map)
+    z80_rom_cs       <= ( MREQ_n == 0 && z80_addr[15:0] < 16'hf000 );
+    z80_ram_cs       <= ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf000 && z80_addr[15:0] < 16'hf800 );
+    z80_latch_cs     <= ( MREQ_n == 0 && z80_addr[15:0] == 16'hf800 );
+
+//	snk68_state::powb_sound_io_map(address_map &map)
+    z80_sound0_cs    <= z80_io_cs(8'h00); // ym3812 address
+    z80_sound1_cs    <= z80_io_cs(8'h20); // ym3812 data
+    z80_upd_cs       <= z80_io_cs(8'h40); // 7759 write
+    z80_upd_r_cs     <= z80_io_cs(8'h80); // 7759 reset
+        end
+
         default:;
     endcase
 
