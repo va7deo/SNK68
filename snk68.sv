@@ -687,6 +687,7 @@ always @ (posedge clk_sys) begin
             tile_state <= 2;
         end else if ( tile_state == 2) begin  
             // address is valid - need more more cycle to read 
+            fg_ram_addr <= fg_ram_addr + 1;
             tile_state <= 3;
         end else if ( tile_state == 3) begin  
         // addr = (t << 4) + dy + (( dx < 4) ? 8 : 0 ) ;
@@ -696,6 +697,9 @@ always @ (posedge clk_sys) begin
             tile_state <= 4;
         end else if ( tile_state == 4) begin             
             // address is valid - need more more cycle to read 
+            if ( pcb == 1 ) begin
+                fg_colour <= fg_ram_dout[3:0];
+            end
             tile_state <= 5;
         end else if ( tile_state == 5) begin              
             pix_data <= fg_rom_data;
@@ -884,7 +888,7 @@ always @ (posedge clk_sys) begin
                 rgb <= 0;
                 pen_valid <= 0;
             end else if ( clk6_count == 3 ) begin
-                pen <= ( fg[3:0] == 0 && fg[7] == 0 ) ? sp[10:0] : fg[6:0];
+                pen <= ( fg[3:0] == 0 && ( pcb == 1 || fg[7] == 0 ) ) ? sp[10:0] : fg[6:0];
                 pen_valid <= 1;
             end else if ( clk6_count == 5 ) begin
                 tile_pal_addr <= pen[10:0] ;
