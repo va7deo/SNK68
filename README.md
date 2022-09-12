@@ -1,7 +1,7 @@
 
 # SNK M68000 (Ikari III) FPGA Implementation
 
-FPGA compatible core of SNK M68000 (Ikari III based)arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). FPGA implementation has been verified against schematics for Ikari III (A7007). PCB verification and measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Rescue (A7007).
+FPGA compatible core of SNK M68000 (Ikari III based)arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). FPGA implementation has been verified against schematics for Ikari III (A7007). PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Rescue (A7007).
 
 Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) and verified by [**Darren Olafson**](https://twitter.com/Darren__O). Other PCB verification done by [**atrac17**](https://github.com/atrac17). The intent is for this core to be a 1:1 playable implementation of SNK M68000 (Ikari III) arcade hardware. Currently in **alpha state**, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
@@ -14,10 +14,10 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 
 | Title | PCB<br>Number | Status  | Released |
 |-------|---------------|---------|----------|
-| [**脱獄: Prisoners of War**](https://en.wikipedia.org/wiki/P.O.W.:_Prisoners_of_War)   | A7008         | Implemented | No |
-| [**怒III**](https://en.wikipedia.org/wiki/Ikari_III:_The_Rescue)                       | A7007         | Implemented | No |
-| [**Street Smart**](https://en.wikipedia.org/wiki/Street_Smart_(video_game))            | A7008 / A8007 | Implemented | No |
-| [**S.A.R.: Search and Rescue**](http://snk.fandom.com/wiki/SAR:_Search_and_Rescue)     | A8007         | Implemented | No |
+| [**脱獄: Prisoners of War**](https://en.wikipedia.org/wiki/P.O.W.:_Prisoners_of_War)<br>P.O.W.: Prisoners of War | A7008         | Implemented | No |
+| [**怒III**](https://en.wikipedia.org/wiki/Ikari_III:_The_Rescue)<br>Ikari III: The Rescue                        | A7007         | Implemented | No |
+| [**Street Smart**](https://en.wikipedia.org/wiki/Street_Smart_(video_game))                                      | A7008 / A8007 | Implemented | No |
+| [**SAR: Search and Rescue**](http://snk.fandom.com/wiki/SAR:_Search_and_Rescue)                                  | A8007         | Implemented | No |
 
 ## External Modules
 
@@ -36,15 +36,15 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 
 <br>
 
-FPGA implementation has been verified against schematics [**schematics**](https://github.com/va7deo/SNK68/blob/main/doc/A7007%20(Ikari%20III)/Schematic/A7007%20Schematics.pdf) for Ikari III. PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Resucue (A7007).
+FPGA implementation has been verified against schematics [**schematics**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/A7007%20(Ikari%20III)/Schematic/A7007%20Schematics.pdf) for Ikari III. PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Resucue (A7007).
 
 ### Clock Information
 
 H-Sync      | V-Sync      | Source   | PCB<br>Number  |
 ------------|-------------|----------|----------------|
-15.625kHz   | 59.185606Hz | [**DSLogic+**](https://github.com/va7deo/SNK68/blob/main/doc/A7008%20(P.O.W.)/PCB%20Measurements/POW_CSYNC_50MHz.png) | A7008 (P.O.W.) |
-15.625kHz   | 59.185606Hz | TBD                                                                                                                   | A7007 (IK3)    |
-15.625kHz   | 59.185606Hz | DSLogic+                                                                                                              | A8007 (SS)     |
+15.625kHz   | 59.185606Hz | [**DSLogic+**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/A7008%20(P.O.W.)/PCB%20Measurements/POW_CSYNC_50MHz.png?token=GHSAT0AAAAAABKJR6W66IGCUFIRIFHKH4OOYY7PVZQ) | A7008 (P.O.W.) |
+15.625kHz   | 59.185606Hz | TBD                                                                                                                                                                              | A7007 (IK3)    |
+15.625kHz   | 59.185606Hz | DSLogic+                                                                                                                                                                         | A8007 (SS)     |
 
 ### Crystal Oscillators
 
@@ -56,11 +56,11 @@ X-1  (24MHz)           | A7008 (P.O.W.) / A8007 (SS) | 24.000     | Video / Pixe
 
 <br>
 
-Location               | PCB<br>Number                | Freq (MHz) | Use                       |
------------------------|------------------------------|------------|---------------------------|
-F-18 (4MHZ)            | A7007 (IK3) / A8007 (S.A.R.) | 4.000      | Z80 / YM3812 / uPD7759    |
-H-17 (18MHZ)           | A7007 (IK3) / A8007 (S.A.R.) | 18.000     | M68000                    |
-E-9  (24MHz)           | A7007 (IK3) / A8007 (S.A.R.) | 24.000     | Video / Pixel Clock       |
+Location               | PCB<br>Number             | Freq (MHz) | Use                       |
+-----------------------|---------------------------|------------|---------------------------|
+F-18 (4MHZ)            | A7007 (IK3) / A8007 (SAR) | 4.000      | Z80 / YM3812 / uPD7759    |
+H-17 (18MHZ)           | A7007 (IK3) / A8007 (SAR) | 18.000     | M68000                    |
+E-9  (24MHz)           | A7007 (IK3) / A8007 (SAR) | 24.000     | Video / Pixel Clock       |
 
 **Pixel clock:** 6.00 MHz
 
@@ -81,17 +81,17 @@ YM3812   | A7008 (P.O.W.) / A8007 (SS) | [**Yamaha YM3812**](https://en.wikipedi
 
 Location | PCB<br>Number | Chip | Use |
 ---------|---------------|------|-----|
-H-11/12  | A7007 (IK3) / A8007 (S.A.R.) | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000)   | Main CPU      |
-Z80      | A7007 (IK3) / A8007 (S.A.R.) | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)             | Sound CPU     |
-YM3812   | A7007 (IK3) / A8007 (S.A.R.) | [**Yamaha YM3812**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)       | OPL2          |
-C-18     | A7007 (IK3) / A8007 (S.A.R.) | [**NEC uPD7759**](https://github.com/jotego/jt7759)                      | ADPCM Decoder |
+H-11/12  | A7007 (IK3) / A8007 (SAR) | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000)   | Main CPU      |
+Z80      | A7007 (IK3) / A8007 (SAR) | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)             | Sound CPU     |
+YM3812   | A7007 (IK3) / A8007 (SAR) | [**Yamaha YM3812**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)       | OPL2          |
+C-18     | A7007 (IK3) / A8007 (SAR) | [**NEC uPD7759**](https://github.com/jotego/jt7759)                      | ADPCM Decoder |
 
 ### Custom Components
 
 Location | PCB<br>Number | Chip | Use |
 ---------|---------------|------|-----|
-SNKCLK   | A7007 (IK3) / A8007 (S.A.R.) | [**SNK CLK**](https://github.com/va7deo/SNK68/blob/main/doc/Custom_Components/SNK_CLK.png) | Counter |
-SNKI/O   | A7007 (IK3) / A8007 (S.A.R.) | [**SNK I/O**](https://github.com/va7deo/SNK68/blob/main/doc/Custom_Components/SNK_IO.png)  | Rotary |
+SNKCLK   | A7007 (IK3) / A8007 (SAR) | [**SNK CLK**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_CLK.jpg?token=GHSAT0AAAAAABKJR6W75C2STVYR2QG4ATEEYY7PUUA) | Counter |
+SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_IO.jpg?token=GHSAT0AAAAAABKJR6W77E5OSYH66GBOXS76YY7PVIQ)  | Rotary |
 
 # PCB Features
 
@@ -101,7 +101,7 @@ SNKI/O   | A7007 (IK3) / A8007 (S.A.R.) | [**SNK I/O**](https://github.com/va7de
 
 <br>
 
-<table><tr><th>Game</th><th>Joystick</th><th>Service Menu</th><th>Control Type</th></tr><tr><td><p align="center">P.O.W.</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189564520-0420b015-bf00-46d4-83ff-f9f6c6b2e1d6.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Street Smart</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554369-4b2bfac6-ed0e-401c-b5af-a09713578243.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Ikari III</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554378-670bee3e-04e7-43e1-aac5-c8c21b976bdf.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">S.A.R.</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554390-1acb6dfe-fd93-4ebf-8aa8-043043ebf9b4.png"></td><td><p align="center">Co-Op</td> </table>
+<table><tr><th>Game</th><th>Joystick</th><th>Service Menu</th><th>Control Type</th></tr><tr><td><p align="center">P.O.W.</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189564520-0420b015-bf00-46d4-83ff-f9f6c6b2e1d6.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Street Smart</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554369-4b2bfac6-ed0e-401c-b5af-a09713578243.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Ikari III</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554378-670bee3e-04e7-43e1-aac5-c8c21b976bdf.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">SAR</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554390-1acb6dfe-fd93-4ebf-8aa8-043043ebf9b4.png"></td><td><p align="center">Co-Op</td> </table>
 
 <br>
 
