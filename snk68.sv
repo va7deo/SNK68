@@ -697,7 +697,7 @@ always @ (posedge clk_sys) begin
             tile_state <= 4;
         end else if ( tile_state == 4) begin             
             // address is valid - need more more cycle to read 
-            if ( pcb == 1 ) begin
+            if ( pcb == 1 | pcb == 2 ) begin
                 fg_colour <= fg_ram_dout[3:0];
             end
             tile_state <= 5;
