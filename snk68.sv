@@ -342,24 +342,23 @@ wire [7:0] invert_mask = { 8 {invert_input} } ;
 
 always @ (posedge clk_sys ) begin 
     if ( pcb == 0 ) begin
-    p1   <= { { 2 { invert_mask ^ ~{ start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } } };
-    
-    p2   <= { { 2 { invert_mask ^ ~{ start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } } };
-    
-    coin <= { { 2 { invert_mask ^ ~{ 2'b0, coin_b, coin_a, 2'b0, key_test, key_service } } } };
-    
-    dsw1 <=  ~{ { 2 { sw[0] } } };
-    dsw2 <=  ~{ { 2 { sw[1] } } };
+        p1   <= { { 2 { invert_mask ^ ~{ start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } } };
+        
+        p2   <= { { 2 { invert_mask ^ ~{ start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } } };
+        
+        coin <= { { 2 { invert_mask ^ ~{ 2'b0, coin_b, coin_a, 2'b0, key_test, key_service } } } };
+        
+        dsw1 <=  ~{ { 2 { sw[0] } } };
+        dsw2 <=  ~{ { 2 { sw[1] } } };
     end else begin
-    p1   <= ~{ { 2 { start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } };
+        p1   <= ~{ { 2 { start1, p1_buttons[2:0], p1_right, p1_left, p1_down, p1_up} } };
 
-    p2   <= ~{ { 2 { start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } };
+        p2   <= ~{ { 2 { start2, p2_buttons[2:0], p2_right, p2_left, p2_down, p2_up} } };
 
-    coin <= ~{ { 2 { 2'b0, coin_b, coin_a, 2'b0, key_test, key_service } } };
+        coin <= ~{ { 2 { 2'b0, coin_b, coin_a, 2'b0, key_test, key_service } } };
 
-    dsw1 <=  ~{ { 2 { sw[0] } } };
-    dsw2 <=  ~{ { 2 { sw[1] } } };
-
+        dsw1 <=  ~{ { 2 { sw[0] } } };
+        dsw2 <=  ~{ { 2 { sw[1] } } };
     end
 end
 
@@ -691,14 +690,20 @@ always @ (posedge clk_sys) begin
             tile_state <= 3;
         end else if ( tile_state == 3) begin  
         // addr = (t << 4) + dy + (( dx < 4) ? 8 : 0 ) ;
-        
-            fg_rom_addr <= { fg_ram_dout[10:0], ~fg_x[2], fg_y[2:0] } ;
+            if ( pcb == 0 ) begin
+                fg_rom_addr <= { fg_ram_dout[10:0], ~fg_x[2], fg_y[2:0] } ;
+            end else begin
+                // POW only has 256 text tiles
+                fg_rom_addr <= { 3'b0, fg_ram_dout[7:0], ~fg_x[2], fg_y[2:0] } ;
+            end
+            // bit [15] is the priority [14:12] is the colour
             fg_colour   <=   fg_ram_dout[15:12];
             tile_state <= 4;
         end else if ( tile_state == 4) begin             
             // address is valid - need more more cycle to read 
-            if ( pcb == 1 | pcb == 2 ) begin
-                fg_colour <= fg_ram_dout[3:0];
+            // POW stores the colour in the second tile attribute byte
+            if ( pcb == 1 || pcb == 2 ) begin
+                fg_colour <= fg_ram_dout[2:0] ;
             end
             tile_state <= 5;
         end else if ( tile_state == 5) begin              
@@ -794,7 +799,7 @@ always @ (posedge clk_sys) begin
             sprite_state <= 9;
         end else if ( sprite_state == 9 ) begin
             // tile index ready
-            if (pcb == 0 | pcb == 2) begin
+            if (pcb == 0 || pcb == 2) begin
                 sprite_tile_num <= sprite_ram_dout[14:0] ;  // 0x7fff
                 sprite_flip_x   <= sprite_ram_dout[15] & ~spr_flip_orientation ;  // 0x8000
                 sprite_flip_y   <= sprite_ram_dout[15] &  spr_flip_orientation;   // 0x8000
@@ -813,6 +818,7 @@ always @ (posedge clk_sys) begin
                 2'b00: sprite_rom_addr <= { sprite_tile_num, ~spr_x_ofs[3],  sprite_col_idx[3:0] } ;
                 2'b01: sprite_rom_addr <= { sprite_tile_num,  spr_x_ofs[3],  sprite_col_idx[3:0] } ;
                 2'b10: sprite_rom_addr <= { sprite_tile_num, ~spr_x_ofs[3], ~sprite_col_idx[3:0] } ;
+                2'b11: sprite_rom_addr <= { sprite_tile_num,  spr_x_ofs[3], ~sprite_col_idx[3:0] } ;
             endcase 
             
             sprite_rom_cs <= 1;
@@ -885,15 +891,16 @@ always @ (posedge clk_sys) begin
             end else if ( clk6_count == 2 ) begin
                 fg <= line_buf_fg_out[10:0] ;
                 sp <= spr_buf_dout[10:0] ;
-                rgb <= 0;
-                pen_valid <= 0;
             end else if ( clk6_count == 3 ) begin
-                pen <= ( fg[3:0] == 0 && ( pcb == 1 || fg[7] == 0 ) ) ? sp[10:0] : fg[6:0];
-                pen_valid <= 1;
+                pen <= ( fg[3:0] == 0 && ( pcb == 1 || pcb == 2 || fg[7] == 0 ) ) ? sp[10:0] : fg[6:0];
             end else if ( clk6_count == 5 ) begin
-                tile_pal_addr <= pen[10:0] ;
+                if ( pen[3:0] == 0 ) begin
+                    tile_pal_addr <= 11'h7ff ; // background pen
+                end else begin
+                    tile_pal_addr <= pen[10:0] ;
+                end
             end else if ( clk6_count == 7 ) begin
-                if ( hc < 257 && pen_valid == 1 && pen > 0 ) begin
+                if ( hc < 257 ) begin
                     rgb <= {r_pal, 3'h0, g_pal, 3'h0, b_pal, 3'h0 };
                 end
             end
@@ -914,7 +921,7 @@ always @ (posedge clk_sys) begin
         m68k_latch <= 0;
         spr_flip_orientation <= 0;
     end else begin
-        if ( clk_18M == 1 ) begin
+        if ( fx68_phi1 == 1 ) begin
             // tell 68k to wait for valid data. 0=ready 1=wait
             // always ack when it's not program rom
             m68k_dtack_n <= m68k_rom_cs ? !m68k_rom_valid : 
@@ -1345,7 +1352,7 @@ wire z80_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr >= 24'h080000) & (ioct
 
 // main 68k ram high    
 dual_port_ram #(.LEN(8192)) ram8kx8_H (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1354,7 +1361,7 @@ dual_port_ram #(.LEN(8192)) ram8kx8_H (
 
 // main 68k ram low     
 dual_port_ram #(.LEN(8192)) ram8kx8_L (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1367,7 +1374,7 @@ wire [15:0] sprite_ram_dout /* synthesis keep */;
 // main 68k sprite ram high  
 // 2kx16
 dual_port_ram #(.LEN(16384)) sprite_ram_H (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[14:1] ),
     .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1382,7 +1389,7 @@ dual_port_ram #(.LEN(16384)) sprite_ram_H (
 
 // main 68k sprite ram low     
 dual_port_ram #(.LEN(16384)) sprite_ram_L (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[14:1] ),
     .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1403,7 +1410,7 @@ wire [15:0] m68k_fg_ram_dout;
 
 // foreground high   
 dual_port_ram #(.LEN(2048)) ram_fg_h (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_uds_n ), // can write to m68k_fg_mirror_cs but not read
     .data_a ( m68k_dout[15:8]  ),
@@ -1419,7 +1426,7 @@ dual_port_ram #(.LEN(2048)) ram_fg_h (
 
 // foreground low
 dual_port_ram #(.LEN(2048)) ram_fg_l (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1449,7 +1456,7 @@ wire [4:0] b_pal = { tile_pal_dout[3:0]  , tile_pal_dout[12] };
     
 // tile palette high   
 dual_port_ram #(.LEN(2048)) tile_pal_h (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_pal_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1464,7 +1471,7 @@ dual_port_ram #(.LEN(2048)) tile_pal_h (
 
 //  tile palette low
 dual_port_ram #(.LEN(2048)) tile_pal_l (
-    .clock_a ( clk_18M ),
+    .clock_a ( fx68_phi1 ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_pal_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1778,6 +1785,26 @@ sdram #(.CLK_FREQ( (CLKSYS+0.0))) sdram
   .sdram_dqml(SDRAM_DQML),
   .sdram_dqmh(SDRAM_DQMH)
 );    
+
+endmodule
+
+module delay
+(
+    input clk,
+    input clk_en,
+    input i,
+    output o
+);
+
+reg [5:0] r;
+
+assign o = r[0]; 
+
+always @(posedge clk) begin
+    if ( clk_en == 1 ) begin
+        r <= { r[4:0], i };
+    end
+end
 
 endmodule
 
