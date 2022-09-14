@@ -921,7 +921,7 @@ always @ (posedge clk_sys) begin
         m68k_latch <= 0;
         spr_flip_orientation <= 0;
     end else begin
-        if ( fx68_phi1 == 1 ) begin
+        if ( clk_18M == 1 ) begin
             // tell 68k to wait for valid data. 0=ready 1=wait
             // always ack when it's not program rom
             m68k_dtack_n <= m68k_rom_cs ? !m68k_rom_valid : 
@@ -1352,7 +1352,7 @@ wire z80_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr >= 24'h080000) & (ioct
 
 // main 68k ram high    
 dual_port_ram #(.LEN(8192)) ram8kx8_H (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1361,7 +1361,7 @@ dual_port_ram #(.LEN(8192)) ram8kx8_H (
 
 // main 68k ram low     
 dual_port_ram #(.LEN(8192)) ram8kx8_L (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1374,7 +1374,7 @@ wire [15:0] sprite_ram_dout /* synthesis keep */;
 // main 68k sprite ram high  
 // 2kx16
 dual_port_ram #(.LEN(16384)) sprite_ram_H (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[14:1] ),
     .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1389,7 +1389,7 @@ dual_port_ram #(.LEN(16384)) sprite_ram_H (
 
 // main 68k sprite ram low     
 dual_port_ram #(.LEN(16384)) sprite_ram_L (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[14:1] ),
     .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1410,7 +1410,7 @@ wire [15:0] m68k_fg_ram_dout;
 
 // foreground high   
 dual_port_ram #(.LEN(2048)) ram_fg_h (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_uds_n ), // can write to m68k_fg_mirror_cs but not read
     .data_a ( m68k_dout[15:8]  ),
@@ -1426,7 +1426,7 @@ dual_port_ram #(.LEN(2048)) ram_fg_h (
 
 // foreground low
 dual_port_ram #(.LEN(2048)) ram_fg_l (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1456,7 +1456,7 @@ wire [4:0] b_pal = { tile_pal_dout[3:0]  , tile_pal_dout[12] };
     
 // tile palette high   
 dual_port_ram #(.LEN(2048)) tile_pal_h (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_pal_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1471,7 +1471,7 @@ dual_port_ram #(.LEN(2048)) tile_pal_h (
 
 //  tile palette low
 dual_port_ram #(.LEN(2048)) tile_pal_l (
-    .clock_a ( fx68_phi1 ),
+    .clock_a ( clk_18M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_pal_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
