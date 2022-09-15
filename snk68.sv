@@ -397,40 +397,31 @@ always @ (posedge clk_sys) begin
         rotary2 <= 12'h1 ;
     end else begin
         // did the button state change?
-        if ( joy[0] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy[0];
+        if ( joy0[0] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy0[0];
             // rotate right
-        if ( joy[0] == 1 ) begin
-               rotary1 <= { rotary1[0], rotary[11:1] };
-            end
+            rotary1 <= { rotary1[0], rotary1[11:1] };
         end
 
-        if ( joy[1] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy[0];
-            // rotate right
-        if ( joy[1] == 1 ) begin
-               rotary1 <= { rotary1[0], rotary[11:1] };
-            end
+        if ( joy0[1] != last_rot1_ccw ) begin
+            last_rot1_ccw <= joy0[1];
+            // rotate left
+            rotary1 <= { rotary1[10:0], rotary1[11] };
         end
 
-        if ( joy[2] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy[0];
-            // rotate right
-        if ( joy[2] == 1 ) begin
-               rotary1 <= { rotary1[0], rotary[11:1] };
-            end
+        if ( joy1[2] != last_rot2_cw ) begin
+            last_rot2_cw <= joy1[2];
+            rotary2 <= { rotary2[0], rotary2[11:1] };
         end
 
-        if ( joy[3] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy[0];
-            // rotate right
-        if ( joy[3] == 1 ) begin
-               rotary1 <= { rotary1[0], rotary[11:1] };
-            end
+        if ( joy1[3] != last_rot2_ccw ) begin
+            last_rot2_ccw <= joy1[3];
+            rotary2 <= { rotary2[10:0], rotary2[11] };
         end
 
     end
 end
+
 
 // Keyboard handler
 
