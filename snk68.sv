@@ -378,13 +378,14 @@ wire        start1  = joy0[7]  | joy1[7]  | key_start_1p;
 wire        start2  = joy0[8]  | joy1[8]  | key_start_2p;
 wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
 wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
-wire        b_pause = joy0[11] | key_pause;
-wire        service = joy0[12] | key_test;
+wire        b_pause = joy0[11] | joy1[11] | key_pause;
 
-wire        rot1_l   = joy0[13]  | key_rot1_l;
-wire        rot1_r   = joy0[14]  | key_rot1_r;
-wire        rot2_l   = joy1[11]  | key_rot2_l;
-wire        rot2_r   = joy1[12]  | key_rot2_r;
+wire        rot1_l   = joy0[12]  | key_rot1_l;
+wire        rot1_r   = joy0[13]  | key_rot1_r;
+wire        rot2_l   = joy1[12]  | key_rot2_l;
+wire        rot2_r   = joy1[13]  | key_rot2_r;
+
+wire        service = key_test;
 
 // Rotary controls
 
@@ -990,9 +991,9 @@ always @ (posedge clk_sys) begin
                          m68k_spr_cs  ? ( m68k_a[1] == 0 ) ? ( m68k_sprite_dout | 16'hff00 ) : m68k_sprite_dout : // 0xff000000
                          m68k_fg_ram_cs ? m68k_fg_ram_dout :
                          m68k_pal_cs ? m68k_pal_dout :
-                         m68k_rotary1_cs ? ~rotary1[7:0] :
-                         m68k_rotary2_cs ? ~rotary2[7:0] :
-                         m68k_rotary_lsb_cs ? ~{ rotary2[11:8], rotary1[11:8] } :
+                         m68k_rotary1_cs ? ~rotary1[11:4] :
+                         m68k_rotary2_cs ? ~rotary2[11:4] :
+                         m68k_rotary_lsb_cs ? ~{ rotary2[3:0], rotary1[3:0] } :
                          m_invert_ctrl_cs ? 0 :
                          (input_p1_cs & !input_p2_cs ) ? p1 :  
                          (input_p2_cs & !input_p1_cs ) ? p2 :
