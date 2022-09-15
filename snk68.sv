@@ -1035,9 +1035,9 @@ wire    m68k_fg_ram_cs;
 wire    m68k_spr_flip_cs;
 wire    input_p1_cs;
 wire    input_p2_cs;
-wire    m68k_rotary1_cs,
-wire    m68k_rotary2_cs,
-wire    m68k_rotary_lsb_cs,
+wire    m68k_rotary1_cs;
+wire    m68k_rotary2_cs;
+wire    m68k_rotary_lsb_cs;
 wire    input_coin_cs;
 wire    input_dsw1_cs;
 wire    input_dsw2_cs;
