@@ -24,6 +24,9 @@ module chip_select
     output reg m68k_spr_flip_cs,
     output reg input_p1_cs,
     output reg input_p2_cs,
+    output reg m68k_rotary1_cs,
+    output reg m68k_rotary2_cs,
+    output reg m68k_rotary_lsb_cs,
     output reg input_dsw1_cs,
     output reg input_dsw2_cs,
     output reg input_coin_cs,
@@ -84,7 +87,7 @@ always @ (*) begin
 //  write only
 //	map(0x080000, 0x080000).w(FUNC(searchar_state::sound_w));
     m68k_latch_cs   <= m68k_cs( 24'h080000, 24'h080001 ) & !m68k_rw ;
-    
+
 //  read only
 //	map(0x080000, 0x080001).lr8(NAME([this] () -> u8 { return m_p1_io->read() ^ m_invert_controls; }));
     input_p1_cs      <= m68k_cs( 24'h080000, 24'h080001 ) & m68k_rw ;
@@ -94,34 +97,43 @@ always @ (*) begin
 
 //	map(0x080004, 0x080005).lr8(NAME([this] () -> u8 { return m_system_io->read() ^ m_invert_controls; }));
     input_coin_cs    <= m68k_cs( 24'h080004, 24'h080005 ) ;
-    
+
 //	map(0x080006, 0x080007).lw8(NAME([this] (u8 data){ m_invert_controls = ((data & 0xff) == 0x07) ? 0xff : 0x00; } ));
     m_invert_ctrl_cs <= m68k_cs( 24'h080006, 24'h080007 ) ;
-    
+
     m68k_spr_flip_cs <= m68k_cs( 24'h0c0000, 24'h0c0001 );
-    
+
+//	map(0x0c0000, 0x0c0001).r(FUNC(searchar_state::rotary_1_r)); /* Player 1 rotary */;
+    m68k_rotary1_cs      <= m68k_cs( 24'h0c0000, 24'h0c0001 ) & m68k_rw ;
+
+//	map(0x0c8000, 0x0c8001).r(FUNC(searchar_state::rotary_2_r)); /* Player 2 rotary */;
+    m68k_rotary2_cs      <= m68k_cs( 24'h0c8000, 24'h0c8001 ) & m68k_rw ;
+
+//	map(0x0d0000, 0x0d0001).r(FUNC(searchar_state::rotary_lsb_r)); /* Extra rotary bits */;
+    m68k_rotary_lsb_cs   <= m68k_cs( 24'h0d0000, 24'h0d0001 ) & m68k_rw ;
+
 //	map(0x0f0000, 0x0f0001).portr("DSW1");
     input_dsw1_cs    <= m68k_cs( 24'h0f0000, 24'h0f0001 ) ;
-    
+
 //	map(0x0f0008, 0x0f0009).portr("DSW2");
     input_dsw2_cs    <= m68k_cs( 24'h0f0008, 24'h0f0009 ) ;
-    
+
 //  map(0x0f8000, 0x0f8000).r("soundlatch2", FUNC(generic_latch_8_device::read));    
     z80_latch_read_cs <= m68k_cs( 24'h0f8000, 24'h0f8001 ) ;
-    
+
 //	map(0x100000, 0x107fff).rw(m_sprites, FUNC(snk68_spr_device::spriteram_r), FUNC(snk68_spr_device::spriteram_w)).share("spriteram");   // only partially populated
     m68k_spr_cs      <= m68k_cs( 24'h100000, 24'h107fff ) ;
 
 //	map(0x200000, 0x200fff).ram().w(FUNC(searchar_state::fg_videoram_w)).mirror(0x1000).share("fg_videoram"); /* Mirror is used by Ikari 3 */
     m68k_fg_ram_cs   <= m68k_cs( 24'h200000, 24'h200fff ) | m68k_cs( 24'h201000, 24'h201fff ) ;
-    
+
 //	map(0x400000, 0x400fff).rw(m_palette, FUNC(alpha68k_palette_device::read), FUNC(alpha68k_palette_device::write));
     m68k_pal_cs      <= m68k_cs( 24'h400000, 24'h400fff ) ;
-    
+
     z80_rom_cs       <= ( MREQ_n == 0 && z80_addr[15:0] < 16'hf000 );
     z80_ram_cs       <= ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf000 && z80_addr[15:0] < 16'hf800 );
     z80_latch_cs     <= ( MREQ_n == 0 && z80_addr[15:0] == 16'hf800 );
-    
+
     z80_sound0_cs    <= z80_io_cs(8'h00); // ym3812 address
     z80_sound1_cs    <= z80_io_cs(8'h20); // ym3812 data
     z80_upd_cs       <= z80_io_cs(8'h40); // 7759 write

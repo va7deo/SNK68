@@ -381,6 +381,53 @@ wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | key_pause;
 wire        service = joy0[12] | key_test;
 
+// Rotary controls
+
+reg [11:0] rotary1 ;  // this needs to be set using status or keyboard
+reg [11:0] rotary2 ;  // the active bit is low
+
+reg last_rot1_cw ;
+reg last_rot1_ccw ;
+reg last_rot2_cw ;
+reg last_rot2_ccw ;
+
+always @ (posedge clk_sys) begin
+    if ( reset == 1 ) begin
+        rotary1 <= 12'h1 ;
+        rotary2 <= 12'h1 ;
+    end else begin
+        // did the button state change?
+        if ( joy[0] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy[0];
+            // rotate right
+        if ( joy[0] == 1 ) begin
+               rotary1 <= { rotary1[0], rotary[11:1] };
+        end
+
+        if ( joy[1] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy[0];
+            // rotate right
+        if ( joy[1] == 1 ) begin
+               rotary1 <= { rotary1[0], rotary[11:1] };
+        end
+
+        if if ( joy[2] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy[0];
+            // rotate right
+        if ( joy[2] == 1 ) begin
+               rotary1 <= { rotary1[0], rotary[11:1] };
+        end
+
+        if ( joy[3] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy[0];
+            // rotate right
+        if ( joy[3] == 1 ) begin
+               rotary1 <= { rotary1[0], rotary[11:1] };
+        end
+
+    end
+end
+
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
@@ -936,6 +983,9 @@ always @ (posedge clk_sys) begin
                          m68k_spr_cs  ? ( m68k_a[1] == 0 ) ? ( m68k_sprite_dout | 16'hff00 ) : m68k_sprite_dout : // 0xff000000
                          m68k_fg_ram_cs ? m68k_fg_ram_dout :
                          m68k_pal_cs ? m68k_pal_dout :
+                         m68k_rotary1_cs ? ~rotary1[7:0] :
+                         m68k_rotary2_cs ? ~rotary2[7:0] :
+                         m68k_rotary_lsb_cs ? ~{ rotary2[11:8], rotary1[11:8] } :
                          m_invert_ctrl_cs ? 0 :
                          (input_p1_cs & !input_p2_cs ) ? p1 :  
                          (input_p2_cs & !input_p1_cs ) ? p2 :
@@ -969,9 +1019,9 @@ always @ (posedge clk_sys) begin
             z80_nmi_n <= 1;
         end
     end
-end 
+end
 
- 
+
 wire    m68k_rom_cs;
 wire    m68k_rom_2_cs;
 wire    m68k_ram_cs;
@@ -981,6 +1031,9 @@ wire    m68k_fg_ram_cs;
 wire    m68k_spr_flip_cs;
 wire    input_p1_cs;
 wire    input_p2_cs;
+wire    m68k_rotary1_cs,
+wire    m68k_rotary2_cs,
+wire    m68k_rotary_lsb_cs,
 wire    input_coin_cs;
 wire    input_dsw1_cs;
 wire    input_dsw2_cs;
@@ -997,7 +1050,7 @@ wire    z80_sound1_cs;
 wire    z80_upd_cs;
 wire    z80_upd_r_cs;
 
-   
+
 chip_select cs (
     .clk(clk_sys),
     .pcb(pcb),
@@ -1021,9 +1074,13 @@ chip_select cs (
     .m68k_fg_ram_cs,
     .m68k_pal_cs,
 
+    .m68k_rotary1_cs,
+    .m68k_rotary2_cs,
+    .m68k_rotary_lsb_cs,
+
+    .input_p1_cs,
     .input_p2_cs,
     .input_coin_cs,
-    .input_p1_cs,
     .input_dsw1_cs,
     .input_dsw2_cs,
 
