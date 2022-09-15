@@ -437,6 +437,8 @@ wire key_fg_enable, key_spr_enable;
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
+wire key_rot1_l, key_rot1_r, key_rot2_l, key_rot2_r;
+
 wire pressed = ps2_key[9];
 
 always @(posedge clk_sys) begin 
