@@ -402,6 +402,7 @@ always @ (posedge clk_sys) begin
             // rotate right
         if ( joy[0] == 1 ) begin
                rotary1 <= { rotary1[0], rotary[11:1] };
+            end
         end
 
         if ( joy[1] != last_rot1_cw ) begin 
@@ -409,13 +410,15 @@ always @ (posedge clk_sys) begin
             // rotate right
         if ( joy[1] == 1 ) begin
                rotary1 <= { rotary1[0], rotary[11:1] };
+            end
         end
 
-        if if ( joy[2] != last_rot1_cw ) begin 
+        if ( joy[2] != last_rot1_cw ) begin 
             last_rot1_cw <= joy[0];
             // rotate right
         if ( joy[2] == 1 ) begin
                rotary1 <= { rotary1[0], rotary[11:1] };
+            end
         end
 
         if ( joy[3] != last_rot1_cw ) begin 
@@ -423,6 +426,7 @@ always @ (posedge clk_sys) begin
             // rotate right
         if ( joy[3] == 1 ) begin
                rotary1 <= { rotary1[0], rotary[11:1] };
+            end
         end
 
     end
