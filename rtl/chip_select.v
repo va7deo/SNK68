@@ -104,13 +104,13 @@ always @ (*) begin
     m68k_spr_flip_cs <= m68k_cs( 24'h0c0000, 24'h0c0001 );
 
 //	map(0x0c0000, 0x0c0001).r(FUNC(searchar_state::rotary_1_r)); /* Player 1 rotary */;
-    m68k_rotary1_cs      <= m68k_cs( 24'h0c0000, 24'h0c0001 ) & m68k_rw ;
+    m68k_rotary1_cs      <= m68k_cs( 24'h0c0000, 24'h0c0001 );
 
 //	map(0x0c8000, 0x0c8001).r(FUNC(searchar_state::rotary_2_r)); /* Player 2 rotary */;
-    m68k_rotary2_cs      <= m68k_cs( 24'h0c8000, 24'h0c8001 ) & m68k_rw ;
+    m68k_rotary2_cs      <= m68k_cs( 24'h0c8000, 24'h0c8001 );
 
 //	map(0x0d0000, 0x0d0001).r(FUNC(searchar_state::rotary_lsb_r)); /* Extra rotary bits */;
-    m68k_rotary_lsb_cs   <= m68k_cs( 24'h0d0000, 24'h0d0001 ) & m68k_rw ;
+    m68k_rotary_lsb_cs   <= m68k_cs( 24'h0d0000, 24'h0d0001 );
 
 //	map(0x0f0000, 0x0f0001).portr("DSW1");
     input_dsw1_cs    <= m68k_cs( 24'h0f0000, 24'h0f0001 ) ;
