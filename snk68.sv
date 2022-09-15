@@ -380,10 +380,10 @@ wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
 wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | joy1[11] | key_pause;
 
-wire        rot1_l   = joy0[12]  | key_rot1_l;
-wire        rot1_r   = joy0[13]  | key_rot1_r;
-wire        rot2_l   = joy1[12]  | key_rot2_l;
-wire        rot2_r   = joy1[13]  | key_rot2_r;
+wire        rot1_l  = joy0[12] | key_rot1_l;
+wire        rot1_r  = joy0[13] | key_rot1_r;
+wire        rot2_l  = joy1[12] | key_rot2_l;
+wire        rot2_r  = joy1[13] | key_rot2_r;
 
 wire        service = key_test;
 
@@ -403,25 +403,25 @@ always @ (posedge clk_sys) begin
         rotary2 <= 12'h1 ;
     end else begin
         // did the button state change?
-        if ( joy0[13] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy0[13];
+        if ( joy0[12] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy0[12];
             // rotate right
             rotary1 <= { rotary1[0], rotary1[11:1] };
         end
 
-        if ( joy0[14] != last_rot1_ccw ) begin
-            last_rot1_ccw <= joy0[14];
+        if ( joy0[13] != last_rot1_ccw ) begin
+            last_rot1_ccw <= joy0[13];
             // rotate left
             rotary1 <= { rotary1[10:0], rotary1[11] };
         end
 
-        if ( joy1[11] != last_rot2_cw ) begin
-            last_rot2_cw <= joy1[11];
+        if ( joy1[12] != last_rot2_cw ) begin
+            last_rot2_cw <= joy1[12];
             rotary2 <= { rotary2[0], rotary2[11:1] };
         end
 
-        if ( joy1[12] != last_rot2_ccw ) begin
-            last_rot2_ccw <= joy1[12];
+        if ( joy1[13] != last_rot2_ccw ) begin
+            last_rot2_ccw <= joy1[13];
             rotary2 <= { rotary2[10:0], rotary2[11] };
         end
 
