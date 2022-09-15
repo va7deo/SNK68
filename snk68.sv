@@ -510,7 +510,7 @@ wire    reset;
 assign  reset = RESET | key_reset | status[0] ; 
 
 //////////////////////////////////////////////////////////////////
-wire rotate_ccw = 1;
+wire rotate_ccw = 0;
 wire no_rotate = orientation | direct_video;
 wire video_rotated ;
 wire flip = 0;
