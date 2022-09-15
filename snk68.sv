@@ -331,8 +331,8 @@ end
 wire [21:0] gamma_bus;
 
 //<buttons names="Fire,Jump,Start,Coin,Pause" default="A,B,R,L,Start" />
-reg [15:0] p1;    
-reg [15:0] p2;    
+reg [15:0] p1;
+reg [15:0] p2;
 reg [15:0] dsw1;
 reg [15:0] dsw2;
 reg [15:0] coin;
@@ -381,6 +381,11 @@ wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | key_pause;
 wire        service = joy0[12] | key_test;
 
+wire        rot1_l   = joy0[13]  | key_rot1_l;
+wire        rot1_r   = joy0[14]  | key_rot1_r;
+wire        rot2_l   = joy1[11]  | key_rot2_l;
+wire        rot2_r   = joy1[12]  | key_rot2_r;
+
 // Rotary controls
 
 reg [11:0] rotary1 ;  // this needs to be set using status or keyboard
@@ -397,25 +402,25 @@ always @ (posedge clk_sys) begin
         rotary2 <= 12'h1 ;
     end else begin
         // did the button state change?
-        if ( joy0[0] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy0[0];
+        if ( joy0[13] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy0[13];
             // rotate right
             rotary1 <= { rotary1[0], rotary1[11:1] };
         end
 
-        if ( joy0[1] != last_rot1_ccw ) begin
-            last_rot1_ccw <= joy0[1];
+        if ( joy0[14] != last_rot1_ccw ) begin
+            last_rot1_ccw <= joy0[14];
             // rotate left
             rotary1 <= { rotary1[10:0], rotary1[11] };
         end
 
-        if ( joy1[2] != last_rot2_cw ) begin
-            last_rot2_cw <= joy1[2];
+        if ( joy1[11] != last_rot2_cw ) begin
+            last_rot2_cw <= joy1[11];
             rotary2 <= { rotary2[0], rotary2[11:1] };
         end
 
-        if ( joy1[3] != last_rot2_ccw ) begin
-            last_rot2_ccw <= joy1[3];
+        if ( joy1[12] != last_rot2_ccw ) begin
+            last_rot2_ccw <= joy1[12];
             rotary2 <= { rotary2[10:0], rotary2[11] };
         end
 
@@ -467,6 +472,11 @@ always @(posedge clk_sys) begin
             'h01b: key_p2_b       <= pressed; // s
             'h015: key_p2_c       <= pressed; // q
             'h01d: key_p2_d       <= pressed; // w
+
+            'h043: key_rot1_l     <= pressed; // i
+            'h044: key_rot1_r     <= pressed; // o
+            'h042: key_rot2_l     <= pressed; // k
+            'h04b: key_rot2_r     <= pressed; // l
 
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
