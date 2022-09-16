@@ -27,6 +27,9 @@ module chip_select
     output reg input_dsw1_cs,
     output reg input_dsw2_cs,
     output reg input_coin_cs,
+    output reg m68k_rotary1_cs,
+    output reg m68k_rotary2_cs,
+    output reg m68k_rotary_lsb_cs,    
     output reg m_invert_ctrl_cs,
     output reg m68k_latch_cs,
     output reg z80_latch_read_cs,
@@ -94,11 +97,22 @@ always @ (*) begin
 
 //	map(0x080004, 0x080005).lr8(NAME([this] () -> u8 { return m_system_io->read() ^ m_invert_controls; }));
     input_coin_cs    <= m68k_cs( 24'h080004, 24'h080005 ) ;
+  
     
 //	map(0x080006, 0x080007).lw8(NAME([this] (u8 data){ m_invert_controls = ((data & 0xff) == 0x07) ? 0xff : 0x00; } ));
     m_invert_ctrl_cs <= m68k_cs( 24'h080006, 24'h080007 ) ;
     
     m68k_spr_flip_cs <= m68k_cs( 24'h0c0000, 24'h0c0001 );
+    
+    //	map(0x0c0000, 0x0c0001).r(FUNC(searchar_state::rotary_1_r)); /* Player 1 rotary */;
+    m68k_rotary1_cs      <= m68k_cs( 24'h0c0000, 24'h0c0001 );
+
+//	map(0x0c8000, 0x0c8001).r(FUNC(searchar_state::rotary_2_r)); /* Player 2 rotary */;
+    m68k_rotary2_cs      <= m68k_cs( 24'h0c8000, 24'h0c8001 );
+
+//	map(0x0d0000, 0x0d0001).r(FUNC(searchar_state::rotary_lsb_r)); /* Extra rotary bits */;
+    m68k_rotary_lsb_cs   <= m68k_cs( 24'h0d0000, 24'h0d0001 );
+    
     
 //	map(0x0f0000, 0x0f0001).portr("DSW1");
     input_dsw1_cs    <= m68k_cs( 24'h0f0000, 24'h0f0001 ) ;
@@ -152,6 +166,10 @@ always @ (*) begin
 //  read only
 //	map(0x080001, 0x080001).lr8(NAME([this] () -> u8 { return m_p1_io->read(); }));
     input_p1_cs      <= m68k_cs( 24'h080000, 24'h080001 ) ;
+    
+    m68k_rotary1_cs      <= 0;
+    m68k_rotary2_cs      <= 0;
+    m68k_rotary_lsb_cs   <= 0;
 
 //	map(0x0f0000, 0x0f0001).portr("DSW1");
     input_dsw1_cs    <= m68k_cs( 24'h0f0000, 24'h0f0001 ) ;
@@ -210,6 +228,10 @@ always @ (*) begin
     
 //	map(0x0f0008, 0x0f0009).portr("DSW2");
     input_dsw2_cs    <= m68k_cs( 24'h0f0008, 24'h0f0009 ) ;
+    
+    m68k_rotary1_cs      <= 0;
+    m68k_rotary2_cs      <= 0;
+    m68k_rotary_lsb_cs   <= 0;
 
 //	map(0x200000, 0x207fff).rw(m_sprites, FUNC(snk68_spr_device::spriteram_r), FUNC(snk68_spr_device::spriteram_w)).share("spriteram");   // only partially populated
     m68k_spr_cs      <= m68k_cs( 24'h200000, 24'h207fff ) ;

@@ -432,6 +432,56 @@ always @(posedge clk_sys) begin
     end
 end
 
+// Rotary controls
+
+reg [11:0] rotary1 ;  // this needs to be set using status or keyboard
+reg [11:0] rotary2 ;  // the active bit is low
+
+reg last_rot1_cw ;
+reg last_rot1_ccw ;
+reg last_rot2_cw ;
+reg last_rot2_ccw ;
+
+always @ (posedge clk_sys) begin
+    if ( reset == 1 ) begin
+        rotary1 <= 12'h1 ;
+        rotary2 <= 12'h1 ;
+    end else begin
+        // did the button state change?
+        if ( joy0[12] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy0[12];
+            // rotate right
+            if ( joy0[12] == 1 ) begin
+                rotary1 <= { rotary1[0], rotary1[11:1] };
+            end
+        end
+
+        if ( joy0[13] != last_rot1_ccw ) begin
+            last_rot1_ccw <= joy0[13];
+            // rotate left
+            if ( joy0[13] == 1 ) begin
+                rotary1 <= { rotary1[10:0], rotary1[11] };
+            end
+        end
+
+        if ( joy1[12] != last_rot2_cw ) begin
+            last_rot2_cw <= joy1[12];
+            if ( joy1[12] == 1 ) begin
+                rotary2 <= { rotary2[0], rotary2[11:1] };
+            end
+        end
+
+        if ( joy1[13] != last_rot2_ccw ) begin
+            last_rot2_ccw <= joy1[13];
+            if ( joy1[13] == 1 ) begin
+                rotary2 <= { rotary2[10:0], rotary2[11] };
+            end
+        end
+
+    end
+end
+
+
 reg user_flip;
 
 wire pll_locked;
@@ -943,6 +993,9 @@ always @ (posedge clk_sys) begin
                          input_dsw1_cs ? dsw1 :
                          input_dsw2_cs ? dsw2 :
                          input_coin_cs ? coin :
+                         m68k_rotary1_cs ? ~{ rotary1[11:4], 8'h0 } :
+                         m68k_rotary2_cs ? ~{ rotary2[11:4], 8'h0 } :
+                         m68k_rotary_lsb_cs ? ~{ rotary2[3:0], rotary1[3:0], 8'h0 } :                         
                          z80_latch_read_cs ? { z80_latch, z80_latch } :
                          16'd0;
                          
@@ -988,6 +1041,9 @@ wire    irq_z80_cs;
 wire    m_invert_ctrl_cs;
 wire    m68k_latch_cs;
 wire    z80_latch_read_cs;
+wire    m68k_rotary1_cs;
+wire    m68k_rotary2_cs;
+wire    m68k_rotary_lsb_cs;
 
 wire    z80_rom_cs;
 wire    z80_ram_cs;
@@ -1026,6 +1082,10 @@ chip_select cs (
     .input_p1_cs,
     .input_dsw1_cs,
     .input_dsw2_cs,
+    
+    .m68k_rotary1_cs,
+    .m68k_rotary2_cs,
+    .m68k_rotary_lsb_cs,
 
     .m_invert_ctrl_cs,
 
