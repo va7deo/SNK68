@@ -374,60 +374,12 @@ wire        p2_down    = joy1[2] | key_p2_down;
 wire        p2_up      = joy1[3] | key_p2_up;
 wire [2:0]  p2_buttons = joy1[6:4] | {key_p2_c, key_p2_b, key_p2_a};
 
-wire        start1  = joy0[7]  | joy1[7]  | key_start_1p;
-wire        start2  = joy0[8]  | joy1[8]  | key_start_2p;
-wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
-wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
-wire        b_pause = joy0[11] | joy1[11] | key_pause;
-
-wire        rot1_l  = joy0[12] | key_rot1_l;
-wire        rot1_r  = joy0[13] | key_rot1_r;
-wire        rot2_l  = joy1[12] | key_rot2_l;
-wire        rot2_r  = joy1[13] | key_rot2_r;
-
+wire        start1  = joy0[9]  | joy1[9]  | key_start_1p;
+wire        start2  = joy0[10] | joy1[10] | key_start_2p;
+wire        coin_a  = joy0[11] | joy1[11] | key_coin_a;
+wire        coin_b  = joy0[12] | joy1[12] | key_coin_b;
+wire        b_pause = joy0[13] | joy1[13] | key_pause;
 wire        service = key_test;
-
-// Rotary controls
-
-reg [11:0] rotary1 ;  // this needs to be set using status or keyboard
-reg [11:0] rotary2 ;  // the active bit is low
-
-reg last_rot1_cw ;
-reg last_rot1_ccw ;
-reg last_rot2_cw ;
-reg last_rot2_ccw ;
-
-always @ (posedge clk_sys) begin
-    if ( reset == 1 ) begin
-        rotary1 <= 12'h1 ;
-        rotary2 <= 12'h1 ;
-    end else begin
-        // did the button state change?
-        if ( joy0[12] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy0[12];
-            // rotate right
-            rotary1 <= { rotary1[0], rotary1[11:1] };
-        end
-
-        if ( joy0[13] != last_rot1_ccw ) begin
-            last_rot1_ccw <= joy0[13];
-            // rotate left
-            rotary1 <= { rotary1[10:0], rotary1[11] };
-        end
-
-        if ( joy1[12] != last_rot2_cw ) begin
-            last_rot2_cw <= joy1[12];
-            rotary2 <= { rotary2[0], rotary2[11:1] };
-        end
-
-        if ( joy1[13] != last_rot2_ccw ) begin
-            last_rot2_ccw <= joy1[13];
-            rotary2 <= { rotary2[10:0], rotary2[11] };
-        end
-
-    end
-end
-
 
 // Keyboard handler
 
@@ -438,7 +390,7 @@ wire key_fg_enable, key_spr_enable;
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
-wire key_rot1_l, key_rot1_r, key_rot2_l, key_rot2_r;
+wire key_rotary1_cw, key_rotary1_ccw, key_rotary2_cw, key_rotary2_ccw;
 
 wire pressed = ps2_key[9];
 
@@ -458,34 +410,88 @@ always @(posedge clk_sys) begin
             'h02c: key_tilt       <= pressed; // t
             'h04D: key_pause      <= pressed; // p
 
-            'hX75: key_p1_up      <= pressed; // up
-            'hX72: key_p1_down    <= pressed; // down
-            'hX6b: key_p1_left    <= pressed; // left
-            'hX74: key_p1_right   <= pressed; // right
-            'h014: key_p1_a       <= pressed; // lctrl
-            'h011: key_p1_b       <= pressed; // lalt
-            'h029: key_p1_c       <= pressed; // spacebar
-            'h012: key_p1_d       <= pressed; // lshift
+            'hX75: key_p1_up           <= pressed; // up
+            'hX72: key_p1_down         <= pressed; // down
+            'hX6b: key_p1_left         <= pressed; // left
+            'hX74: key_p1_right        <= pressed; // right
+            'h014: key_p1_a            <= pressed; // lctrl
+            'h011: key_p1_b            <= pressed; // lalt
+            'h029: key_p1_c            <= pressed; // spacebar
+            'h012: key_p1_d            <= pressed; // lshift
+            'h044: key_rotary1_cw      <= pressed; // o
+            'h043: key_rotary1_ccw     <= pressed; // i
 
-            'h02d: key_p2_up      <= pressed; // r
-            'h02b: key_p2_down    <= pressed; // f
-            'h023: key_p2_left    <= pressed; // d
-            'h034: key_p2_right   <= pressed; // g
-            'h01c: key_p2_a       <= pressed; // a
-            'h01b: key_p2_b       <= pressed; // s
-            'h015: key_p2_c       <= pressed; // q
-            'h01d: key_p2_d       <= pressed; // w
-
-            'h043: key_rot1_l     <= pressed; // i
-            'h044: key_rot1_r     <= pressed; // o
-            'h042: key_rot2_l     <= pressed; // k
-            'h04b: key_rot2_r     <= pressed; // l
+            'h02d: key_p2_up           <= pressed; // r
+            'h02b: key_p2_down         <= pressed; // f
+            'h023: key_p2_left         <= pressed; // d
+            'h034: key_p2_right        <= pressed; // g
+            'h01c: key_p2_a            <= pressed; // a
+            'h01b: key_p2_b            <= pressed; // s
+            'h015: key_p2_c            <= pressed; // q
+            'h01d: key_p2_d            <= pressed; // w
+            'h04b: key_rotary2_cw      <= pressed; // l
+            'h042: key_rotary2_ccw     <= pressed; // k
 
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
     end
 end
+
+// Rotary controls
+
+reg [11:0] rotary1 ;  // this needs to be set using status or keyboard
+reg [11:0] rotary2 ;  // the active bit is low
+
+reg last_rot1_cw ;
+reg last_rot1_ccw ;
+reg last_rot2_cw ;
+reg last_rot2_ccw ;
+
+assign joy0[7] = key_rotary1_cw;
+assign joy0[8] = key_rotary1_ccw;
+assign joy1[7] = key_rotary2_cw;
+assign joy1[8] = key_rotary2_ccw;
+
+always @ (posedge clk_sys) begin
+    if ( reset == 1 ) begin
+        rotary1 <= 12'h1 ;
+        rotary2 <= 12'h1 ;
+    end else begin
+        // did the button state change?
+        if ( joy0[7] != last_rot1_cw ) begin 
+            last_rot1_cw <= joy0[7];
+            // rotate right
+            if ( joy0[7] == 1 ) begin
+                rotary1 <= { rotary1[0], rotary1[11:1] };
+            end
+        end
+
+        if ( joy0[8] != last_rot1_ccw ) begin
+            last_rot1_ccw <= joy0[8];
+            // rotate left
+            if ( joy0[8] == 1 ) begin
+                rotary1 <= { rotary1[10:0], rotary1[11] };
+            end
+        end
+
+        if ( joy1[7] != last_rot2_cw ) begin
+            last_rot2_cw <= joy1[7];
+            if ( joy1[7] == 1 ) begin
+                rotary2 <= { rotary2[0], rotary2[11:1] };
+            end
+        end
+
+        if ( joy1[8] != last_rot2_ccw ) begin
+            last_rot2_ccw <= joy1[8];
+            if ( joy1[8] == 1 ) begin
+                rotary2 <= { rotary2[10:0], rotary2[11] };
+            end
+        end
+
+    end
+end
+
 
 reg user_flip;
 
@@ -565,7 +571,7 @@ wire    reset;
 assign  reset = RESET | key_reset | status[0] ; 
 
 //////////////////////////////////////////////////////////////////
-wire rotate_ccw = 1;
+wire rotate_ccw = 0;
 wire no_rotate = orientation | direct_video;
 wire video_rotated ;
 wire flip = 0;
@@ -991,9 +997,6 @@ always @ (posedge clk_sys) begin
                          m68k_spr_cs  ? ( m68k_a[1] == 0 ) ? ( m68k_sprite_dout | 16'hff00 ) : m68k_sprite_dout : // 0xff000000
                          m68k_fg_ram_cs ? m68k_fg_ram_dout :
                          m68k_pal_cs ? m68k_pal_dout :
-                         m68k_rotary1_cs ? ~rotary1[11:4] :
-                         m68k_rotary2_cs ? ~rotary2[11:4] :
-                         m68k_rotary_lsb_cs ? ~{ rotary2[3:0], rotary1[3:0] } :
                          m_invert_ctrl_cs ? 0 :
                          (input_p1_cs & !input_p2_cs ) ? p1 :  
                          (input_p2_cs & !input_p1_cs ) ? p2 :
@@ -1001,6 +1004,9 @@ always @ (posedge clk_sys) begin
                          input_dsw1_cs ? dsw1 :
                          input_dsw2_cs ? dsw2 :
                          input_coin_cs ? coin :
+                         m68k_rotary1_cs ? ~{ rotary1[11:4], 8'h0 } :
+                         m68k_rotary2_cs ? ~{ rotary2[11:4], 8'h0 } :
+                         m68k_rotary_lsb_cs ? ~{ rotary2[3:0], rotary1[3:0], 8'h0 } :
                          z80_latch_read_cs ? { z80_latch, z80_latch } :
                          16'd0;
                          
@@ -1039,9 +1045,6 @@ wire    m68k_fg_ram_cs;
 wire    m68k_spr_flip_cs;
 wire    input_p1_cs;
 wire    input_p2_cs;
-wire    m68k_rotary1_cs;
-wire    m68k_rotary2_cs;
-wire    m68k_rotary_lsb_cs;
 wire    input_coin_cs;
 wire    input_dsw1_cs;
 wire    input_dsw2_cs;
@@ -1049,6 +1052,9 @@ wire    irq_z80_cs;
 wire    m_invert_ctrl_cs;
 wire    m68k_latch_cs;
 wire    z80_latch_read_cs;
+wire    m68k_rotary1_cs;
+wire    m68k_rotary2_cs;
+wire    m68k_rotary_lsb_cs;
 
 wire    z80_rom_cs;
 wire    z80_ram_cs;
@@ -1082,15 +1088,15 @@ chip_select cs (
     .m68k_fg_ram_cs,
     .m68k_pal_cs,
 
-    .m68k_rotary1_cs,
-    .m68k_rotary2_cs,
-    .m68k_rotary_lsb_cs,
-
     .input_p1_cs,
     .input_p2_cs,
     .input_coin_cs,
     .input_dsw1_cs,
     .input_dsw2_cs,
+
+    .m68k_rotary1_cs,
+    .m68k_rotary2_cs,
+    .m68k_rotary_lsb_cs,
 
     .m_invert_ctrl_cs,
 
@@ -1872,4 +1878,3 @@ always @(posedge clk) begin
 end
 
 endmodule
-
