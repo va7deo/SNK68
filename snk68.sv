@@ -687,12 +687,12 @@ reg  [8:0] x;
 //addr = (t << 5) + ( dy << 1 ) + (( dx < 4) ? 16 : 0 ) ;
 
 wire  [8:0] fg_x    = x  /* synthesis keep */;
-wire  [8:0] fg_y    = vc /* synthesis keep */;
+wire  [8:0] fg_y    = ( scr_flip == 0 ) ? vc : { vc[8], ~vc[7:0] } /* synthesis keep */; // & spr_flip_orientation  // scr_flip  ? ( 255 - vc ) :
 
 wire  [8:0] sp_x    = x  /* synthesis keep */;
-wire  [8:0] sp_y    = vc /* synthesis keep */;
+wire  [8:0] sp_y    = ( scr_flip == 0 ) ? vc : { vc[8], ~vc[7:0] } /* synthesis keep */;  // & spr_flip_orientation
 
-wire  [9:0] fg_tile = { fg_x[7:3], fg_y[7:3] } /* synthesis keep */;
+wire  [9:0] fg_tile = { x[7:3], ( scr_flip == 0 ) ? vc[7:3] : ~vc[7:3] } /* synthesis keep */;
 
 reg   [6:0] fg_colour;
 
@@ -793,6 +793,7 @@ always @ (posedge clk_sys) begin
             spr_x_pos <= 0;
         end else if ( sprite_state == 21 )  begin  
             spr_buf_w <= 1 ;
+            //spr_buf_addr_w <= { vc[0], spr_x_pos };
             spr_buf_addr_w <= { vc[0], spr_x_pos };
             if ( spr_x_pos > 256 ) begin
                 spr_buf_w <= 0 ;
@@ -937,7 +938,7 @@ always @ (posedge clk_sys) begin
     end else begin
         if ( hc < 257 ) begin
             if ( clk6_count == 1 ) begin
-                line_buf_addr_r <= { ~vc[0], hc[8:0] };
+                line_buf_addr_r <= { ~vc[0], ( scr_flip == 0 ) ? hc[8:0] : { hc[8], ~hc[7:0] } };
             end else if ( clk6_count == 2 ) begin
                 fg <= line_buf_fg_out[10:0] ;
                 sp <= spr_buf_dout[10:0] ;
@@ -959,6 +960,7 @@ always @ (posedge clk_sys) begin
 end
 
 reg spr_flip_orientation ;
+reg scr_flip ;
 
 /// 68k cpu
 always @ (posedge clk_sys) begin
@@ -970,6 +972,7 @@ always @ (posedge clk_sys) begin
         invert_input <= 0;
         m68k_latch <= 0;
         spr_flip_orientation <= 0;
+        scr_flip <= 0;
     end else begin
         if ( clk_18M == 1 ) begin
             // tell 68k to wait for valid data. 0=ready 1=wait
@@ -1007,7 +1010,8 @@ always @ (posedge clk_sys) begin
                     z80_nmi_n <= 0 ;
                 end
                 
-                if ( m68k_spr_flip_cs == 1 ) begin
+                if ( m68k_scr_flip_cs == 1 ) begin
+                    scr_flip <= ~m68k_dout[3]  ;
                     spr_flip_orientation <= m68k_dout[2] ;
                 end
  
@@ -1031,7 +1035,7 @@ wire    m68k_ram_cs;
 wire    m68k_pal_cs;
 wire    m68k_spr_cs;
 wire    m68k_fg_ram_cs;
-wire    m68k_spr_flip_cs;
+wire    m68k_scr_flip_cs;
 wire    input_p1_cs;
 wire    input_p2_cs;
 wire    input_coin_cs;
@@ -1073,7 +1077,7 @@ chip_select cs (
     .m68k_rom_2_cs,
     .m68k_ram_cs,
     .m68k_spr_cs,
-    .m68k_spr_flip_cs,
+    .m68k_scr_flip_cs,
     .m68k_fg_ram_cs,
     .m68k_pal_cs,
 
