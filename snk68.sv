@@ -381,6 +381,12 @@ wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | joy1[11] | key_pause;
 wire        service = key_test;
 
+wire        rotary1_cw  = joy0[12] | key_rotary1_cw;
+wire        rotary1_ccw = joy0[13] | key_rotary1_ccw;
+
+wire        rotary2_cw  = joy1[12] | key_rotary2_cw;
+wire        rotary2_ccw = joy1[13] | key_rotary2_ccw;
+
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
@@ -390,10 +396,7 @@ wire key_fg_enable, key_spr_enable;
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
-wire key_rotary1_cw  = joy0[12];
-wire key_rotary1_ccw = joy0[13];
-wire key_rotary2_cw  = joy1[12];
-wire key_rotary2_ccw = joy1[13];
+wire key_rotary1_cw, key_rotary1_ccw, key_rotary2_cw, key_rotary2_ccw;
 
 wire pressed = ps2_key[9];
 
@@ -421,8 +424,8 @@ always @(posedge clk_sys) begin
             'h011: key_p1_b            <= pressed; // lalt
             'h029: key_p1_c            <= pressed; // spacebar
             'h012: key_p1_d            <= pressed; // lshift
-            'h044: key_rotary1_cw      <= pressed; // o
-            'h043: key_rotary1_ccw     <= pressed; // i
+            'h044: key_rotary1_cw      <= key_rotary1_cw   ^ pressed; // o
+            'h043: key_rotary1_ccw     <= key_rotary1_ccw  ^ pressed; // i
 
             'h02d: key_p2_up           <= pressed; // r
             'h02b: key_p2_down         <= pressed; // f
