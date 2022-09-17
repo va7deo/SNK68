@@ -457,32 +457,32 @@ always @ (posedge clk_sys) begin
         rotary2 <= 12'h1 ;
     end else begin
         // did the button state change?
-        if ( joy0[12] != last_rot1_cw ) begin 
+        if ( joy0[12] || key_rotary1_cw != last_rot1_cw ) begin 
             last_rot1_cw <= joy0[12];
             // rotate right
-            if ( joy0[12] == 1 ) begin
+            if ( joy0[12] || key_rotary1_cw == 1 ) begin
                 rotary1 <= { rotary1[0], rotary1[11:1] };
             end
         end
 
-        if ( joy0[13] != last_rot1_ccw ) begin
+        if ( joy0[13] || key_rotary1_ccw != last_rot1_ccw ) begin
             last_rot1_ccw <= joy0[13];
             // rotate left
-            if ( joy0[13] == 1 ) begin
+            if ( joy0[13] || key_rotary1_ccw  == 1 ) begin
                 rotary1 <= { rotary1[10:0], rotary1[11] };
             end
         end
 
-        if ( joy1[12] != last_rot2_cw ) begin
+        if ( joy1[12] | key_rotary2_cw != last_rot2_cw ) begin
             last_rot2_cw <= joy1[12];
-            if ( joy1[12] == 1 ) begin
+            if ( joy1[12] | key_rotary2_cw == 1 ) begin
                 rotary2 <= { rotary2[0], rotary2[11:1] };
             end
         end
 
-        if ( joy1[13] != last_rot2_ccw ) begin
+        if ( joy1[13] | key_rotary2_ccw != last_rot2_ccw ) begin
             last_rot2_ccw <= joy1[13];
-            if ( joy1[13] == 1 ) begin
+            if ( joy1[13] | key_rotary2_ccw == 1 ) begin
                 rotary2 <= { rotary2[10:0], rotary2[11] };
             end
         end
