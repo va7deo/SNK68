@@ -379,7 +379,12 @@ wire        start2  = joy0[8]  | joy1[8]  | key_start_2p;
 wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
 wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | key_pause;
-wire        service = joy0[12] | key_test;
+wire        service = key_test;
+
+wire        rot_inp_0_cw  = joy0[12] | key_rot0_cw;
+wire        rot_inp_0_ccw = joy0[13] | key_rot0_ccw;
+wire        rot_inp_1_cw  = joy1[12] | key_rot1_cw;
+wire        rot_inp_1_ccw = joy1[13] | key_rot1_ccw;
 
 // Keyboard handler
 
@@ -389,6 +394,8 @@ wire key_fg_enable, key_spr_enable;
 
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
+
+wire key_rot0_cw, key_rot0_ccw, key_rot1_cw, key_rot1_ccw;
 
 wire pressed = ps2_key[9];
 
@@ -426,6 +433,11 @@ always @(posedge clk_sys) begin
             'h015: key_p2_c       <= pressed; // q
             'h01d: key_p2_d       <= pressed; // w
 
+            'h044: key_rot0_cw    <= pressed; // o
+            'h043: key_rot0_ccw   <= pressed; // i
+            'h04b: key_rot1_cw    <= pressed; // l
+            'h042: key_rot1_ccw   <= pressed; // k
+
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
@@ -448,32 +460,32 @@ always @ (posedge clk_sys) begin
         rotary2 <= 12'h1 ;
     end else begin
         // did the button state change?
-        if ( joy0[12] != last_rot1_cw ) begin 
+        if ( rot_inp_0_cw != last_rot1_cw ) begin 
             last_rot1_cw <= joy0[12];
             // rotate right
-            if ( joy0[12] == 1 ) begin
+            if ( rot_inp_0_cw == 1 ) begin
                 rotary1 <= { rotary1[0], rotary1[11:1] };
             end
         end
 
-        if ( joy0[13] != last_rot1_ccw ) begin
+        if ( rot_inp_0_ccw != last_rot1_ccw ) begin
             last_rot1_ccw <= joy0[13];
             // rotate left
-            if ( joy0[13] == 1 ) begin
+            if ( rot_inp_0_ccw == 1 ) begin
                 rotary1 <= { rotary1[10:0], rotary1[11] };
             end
         end
 
-        if ( joy1[12] != last_rot2_cw ) begin
+        if ( rot_inp_1_cw != last_rot2_cw ) begin
             last_rot2_cw <= joy1[12];
-            if ( joy1[12] == 1 ) begin
+            if ( rot_inp_1_cw == 1 ) begin
                 rotary2 <= { rotary2[0], rotary2[11:1] };
             end
         end
 
-        if ( joy1[13] != last_rot2_ccw ) begin
+        if ( rot_inp_1_ccw != last_rot2_ccw ) begin
             last_rot2_ccw <= joy1[13];
-            if ( joy1[13] == 1 ) begin
+            if ( rot_inp_1_ccw == 1 ) begin
                 rotary2 <= { rotary2[10:0], rotary2[11] };
             end
         end
