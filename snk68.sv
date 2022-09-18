@@ -461,7 +461,7 @@ always @ (posedge clk_sys) begin
     end else begin
         // did the button state change?
         if ( rot_inp_0_cw != last_rot1_cw ) begin 
-            last_rot1_cw <= joy0[12];
+            last_rot1_cw <= rot_inp_0_cw;
             // rotate right
             if ( rot_inp_0_cw == 1 ) begin
                 rotary1 <= { rotary1[0], rotary1[11:1] };
@@ -469,7 +469,7 @@ always @ (posedge clk_sys) begin
         end
 
         if ( rot_inp_0_ccw != last_rot1_ccw ) begin
-            last_rot1_ccw <= joy0[13];
+            last_rot1_ccw <= rot_inp_0_ccw;
             // rotate left
             if ( rot_inp_0_ccw == 1 ) begin
                 rotary1 <= { rotary1[10:0], rotary1[11] };
@@ -477,14 +477,14 @@ always @ (posedge clk_sys) begin
         end
 
         if ( rot_inp_1_cw != last_rot2_cw ) begin
-            last_rot2_cw <= joy1[12];
+            last_rot2_cw <= rot_inp_1_cw;
             if ( rot_inp_1_cw == 1 ) begin
                 rotary2 <= { rotary2[0], rotary2[11:1] };
             end
         end
 
         if ( rot_inp_1_ccw != last_rot2_ccw ) begin
-            last_rot2_ccw <= joy1[13];
+            last_rot2_ccw <= rot_inp_1_ccw;
             if ( rot_inp_1_ccw == 1 ) begin
                 rotary2 <= { rotary2[10:0], rotary2[11] };
             end
