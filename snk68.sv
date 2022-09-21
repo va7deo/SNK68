@@ -215,7 +215,9 @@ wire [3:0]  vs_offset = status[31:28];
 wire [3:0]  hs_width  = status[59:56];
 wire [3:0]  vs_width  = status[63:60];
 
+wire gfx_tx_en = ~(status[37] | key_txt_enable);
 wire gfx_fg_en = ~(status[38] | key_fg_enable);
+wire gfx_bg_en = ~(status[39] | key_bg_enable);
 wire gfx_sp_en = ~(status[40] | key_spr_enable);
 
 assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd8 : 8'd7) : (aspect_ratio - 1'd1);
@@ -247,9 +249,9 @@ localparam CONF_STR = {
     "P2OK,Pause when OSD is open,Off,On;",
     "P2OL,Dim video after 10s,Off,On;",
     "-;",
-    "P3,PCB & Debug Settings;",
+    "P3,Debug Settings;",
     "P3-;",
-    "P3OJ,Controller Type,Gamepad,LS-30;",
+    "P3OJ,Rotary Type,Gamepad,LS-30;",
     "P3-;",
     "P3o5,Text Layer,On,Off;",
     "P3o6,Foreground Layer,On,Off;",
@@ -383,11 +385,6 @@ wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | key_pause;
 wire        service = key_test;
 
-wire        rot_inp_0_cw  = joy0[12] | key_rot0_cw;
-wire        rot_inp_0_ccw = joy0[13] | key_rot0_ccw;
-wire        rot_inp_1_cw  = joy1[12] | key_rot1_cw;
-wire        rot_inp_1_ccw = joy1[13] | key_rot1_ccw;
-
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
@@ -397,12 +394,10 @@ wire key_fg_enable, key_spr_enable;
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
-wire key_rot0_cw, key_rot0_ccw, key_rot1_cw, key_rot1_ccw;
-
-wire key_ls30_p1_11, key_ls30_p1_10, key_ls30_p1_09, key_ls30_p1_08, key_ls30_p1_07, key_ls30_p1_06, key_ls30_p1_05, key_ls30_p1_04, key_ls30_p1_03, key_ls30_p1_02, key_ls30_p1_01, key_ls30_p1_00;
-wire key_ls30_p2_11, key_ls30_p2_10, key_ls30_p2_09, key_ls30_p2_08, key_ls30_p2_07, key_ls30_p2_06, key_ls30_p2_05, key_ls30_p2_04, key_ls30_p2_03, key_ls30_p2_02, key_ls30_p2_01, key_ls30_p2_00;
-
 wire pressed = ps2_key[9];
+
+reg [11:0] key_ls30_p1;
+reg [11:0] key_ls30_p2;
 
 always @(posedge clk_sys) begin 
     reg old_state;
@@ -438,39 +433,36 @@ always @(posedge clk_sys) begin
             'h015: key_p2_c       <= pressed; // q
             'h01d: key_p2_d       <= pressed; // w
 
-            'h044: key_rot0_cw    <= pressed; // o
-            'h043: key_rot0_ccw   <= pressed; // i
-            'h04b: key_rot1_cw    <= pressed; // l
-            'h042: key_rot1_ccw   <= pressed; // k
+            // Rotary1 LS-30 P1 Scancodes
+            'h068: key_ls30_p1[0]  <= pressed; // f13
+            'h069: key_ls30_p1[1]  <= pressed; // f14
+            'h06a: key_ls30_p1[2]  <= pressed; // f15
+            'h06b: key_ls30_p1[3]  <= pressed; // f16
+            'h06c: key_ls30_p1[4]  <= pressed; // f17
+            'h06d: key_ls30_p1[5]  <= pressed; // f18
+            'h06e: key_ls30_p1[6]  <= pressed; // f19
+            'h06f: key_ls30_p1[7]  <= pressed; // f20
+            'h070: key_ls30_p1[8]  <= pressed; // f21
+            'h071: key_ls30_p1[9]  <= pressed; // f22
+            'h072: key_ls30_p1[10] <= pressed; // f23
+            'h073: key_ls30_p1[11] <= pressed; // f24
 
-            // Rotary1 LS-30 12 scancodes
-            'h035: key_ls30_p1_00  <= pressed; // y
-            'h03c: key_ls30_p1_01  <= pressed; // u
-            'h043: key_ls30_p1_02  <= pressed; // i
-            'h044: key_ls30_p1_03  <= pressed; // o
-            'h033: key_ls30_p1_04  <= pressed; // h
-            'h03b: key_ls30_p1_05  <= pressed; // j
-            'h042: key_ls30_p1_06  <= pressed; // k
-            'h04b: key_ls30_p1_07  <= pressed; // l
-            'h031: key_ls30_p1_08  <= pressed; // n
-            'h03a: key_ls30_p1_09  <= pressed; // m
-            'h041: key_ls30_p1_10  <= pressed; // ,
-            'h049: key_ls30_p1_11  <= pressed; // .
+            // Rotary1 LS-30 P2 Scancodes
+            'h087: key_ls30_p2[0]  <= pressed; // kanji1
+            'h088: key_ls30_p2[1]  <= pressed; // kanji2
+            'h089: key_ls30_p2[2]  <= pressed; // kanji3
+            'h08a: key_ls30_p2[3]  <= pressed; // kanji4
+            'h08b: key_ls30_p2[4]  <= pressed; // kanji5
+            'h08c: key_ls30_p2[5]  <= pressed; // kanji6
+            'h08d: key_ls30_p2[6]  <= pressed; // kanji7
+            'h08e: key_ls30_p2[7]  <= pressed; // kanji8
+            'h08f: key_ls30_p2[8]  <= pressed; // kanji9
+            'h090: key_ls30_p2[9]  <= pressed; // lang1
+            'h091: key_ls30_p2[10] <= pressed; // lang2
+            'h092: key_ls30_p2[11] <= pressed; // lang3
 
-            // Rotary2 LS-30 12 scancodes
-            'h070: key_ls30_p2_00  <= pressed; // 0 numeric keypad
-            'h069: key_ls30_p2_01  <= pressed; // 1 numeric keypad
-            'h072: key_ls30_p2_02  <= pressed; // 2 numeric keypad
-            'h07a: key_ls30_p2_03  <= pressed; // 3 numeric keypad
-            'h06b: key_ls30_p2_04  <= pressed; // 4 numeric keypad
-            'h073: key_ls30_p2_05  <= pressed; // 5 numeric keypad
-            'h074: key_ls30_p2_06  <= pressed; // 6 numeric keypad
-            'h06c: key_ls30_p2_07  <= pressed; // 7 numeric keypad
-            'h075: key_ls30_p2_08  <= pressed; // 8 numeric keypad
-            'h07d: key_ls30_p2_09  <= pressed; // 9 numeric keypad
-            'h07b: key_ls30_p2_10  <= pressed; // - numeric keypad
-            'h079: key_ls30_p2_11  <= pressed; // + numeric keypad
-
+            'h083: key_txt_enable <= key_txt_enable ^ pressed; // f7
+            'h00a: key_bg_enable  <= key_bg_enable  ^ pressed; // f8
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
@@ -489,48 +481,52 @@ reg last_rot2_ccw ;
 
 wire rotary_controller_type = status[19];
 
+wire rot1_cw  = joy0[12] | key_ls30_p1[0];
+wire rot1_ccw = joy0[13] | key_ls30_p1[1];
+wire rot2_cw  = joy1[12] | key_ls30_p2[0];
+wire rot2_ccw = joy1[13] | key_ls30_p2[1];
+
 always @ (posedge clk_sys) begin
     if ( reset == 1 ) begin
         rotary1 <= 12'h1 ;
         rotary2 <= 12'h1 ;
     end else begin
-    if ( rotary_controller_type == 0 ) begin
-        // controller type 0
-        // did the button state change?
-        if ( rot_inp_0_cw != last_rot1_cw ) begin 
-            last_rot1_cw <= rot_inp_0_cw;
-            // rotate right
-            if ( rot_inp_0_cw == 1 ) begin
-                rotary1 <= { rotary1[0], rotary1[11:1] };
+        if ( rotary_controller_type == 0 ) begin
+            // did the button state change?
+            if ( rot1_cw != last_rot1_cw ) begin 
+                last_rot1_cw <= rot1_cw;
+                // rotate right
+                if ( rot1_cw == 1 ) begin
+                    rotary1 <= { rotary1[0], rotary1[11:1] };
+                end
             end
+
+            if ( rot1_ccw != last_rot1_ccw ) begin
+                last_rot1_ccw <= rot1_ccw;
+                // rotate left
+                if ( rot1_ccw == 1 ) begin
+                    rotary1 <= { rotary1[10:0], rotary1[11] };
+                end
+            end
+
+            if ( rot2_cw != last_rot2_cw ) begin
+                last_rot2_cw <= rot2_cw;
+                if ( rot2_cw == 1 ) begin
+                    rotary2 <= { rotary2[0], rotary2[11:1] };
+                end
+            end
+
+            if ( rot2_ccw != last_rot2_ccw ) begin
+                last_rot2_ccw <= rot2_ccw;
+                if ( rot2_ccw == 1 ) begin
+                    rotary2 <= { rotary2[10:0], rotary2[11] };
+                end
+            end
+        end else begin
+            rotary1 <= key_ls30_p1;
+            rotary2 <= key_ls30_p2;
         end
 
-        if ( rot_inp_0_ccw != last_rot1_ccw ) begin
-            last_rot1_ccw <= rot_inp_0_ccw;
-            // rotate left
-            if ( rot_inp_0_ccw == 1 ) begin
-                rotary1 <= { rotary1[10:0], rotary1[11] };
-            end
-        end
-
-        if ( rot_inp_1_cw != last_rot2_cw ) begin
-            last_rot2_cw <= rot_inp_1_cw;
-            if ( rot_inp_1_cw == 1 ) begin
-                rotary2 <= { rotary2[0], rotary2[11:1] };
-            end
-        end
-
-        if ( rot_inp_1_ccw != last_rot2_ccw ) begin
-            last_rot2_ccw <= rot_inp_1_ccw;
-            if ( rot_inp_1_ccw == 1 ) begin
-                rotary2 <= { rotary2[10:0], rotary2[11] };
-            end
-        end
-    end else begin
-        // controller type 1
-          rotary1 <= ~ { key_ls30_p1_11, key_ls30_p1_10, key_ls30_p1_09, key_ls30_p1_08, key_ls30_p1_07, key_ls30_p1_06, key_ls30_p1_05, key_ls30_p1_04, key_ls30_p1_03, key_ls30_p1_02, key_ls30_p1_01, key_ls30_p1_00 } ;
-          rotary2 <= ~ { key_ls30_p2_11, key_ls30_p2_10, key_ls30_p2_09, key_ls30_p2_08, key_ls30_p2_07, key_ls30_p2_06, key_ls30_p2_05, key_ls30_p2_04, key_ls30_p2_03, key_ls30_p2_02, key_ls30_p2_01, key_ls30_p2_00 } ;
-    end
     end
 end
 
