@@ -247,7 +247,9 @@ localparam CONF_STR = {
     "P2OK,Pause when OSD is open,Off,On;",
     "P2OL,Dim video after 10s,Off,On;",
     "-;",
-    "P3,Debug Settings;",
+    "P3,PCB & Debug Settings;",
+    "P3-;",
+    "P3OJ,Controller Type,Gamepad,LS-30;",
     "P3-;",
     "P3o5,Text Layer,On,Off;",
     "P3o6,Foreground Layer,On,Off;",
@@ -397,6 +399,9 @@ wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_
 
 wire key_rot0_cw, key_rot0_ccw, key_rot1_cw, key_rot1_ccw;
 
+wire key_ls30_p1_11, key_ls30_p1_10, key_ls30_p1_09, key_ls30_p1_08, key_ls30_p1_07, key_ls30_p1_06, key_ls30_p1_05, key_ls30_p1_04, key_ls30_p1_03, key_ls30_p1_02, key_ls30_p1_01, key_ls30_p1_00;
+wire key_ls30_p2_11, key_ls30_p2_10, key_ls30_p2_09, key_ls30_p2_08, key_ls30_p2_07, key_ls30_p2_06, key_ls30_p2_05, key_ls30_p2_04, key_ls30_p2_03, key_ls30_p2_02, key_ls30_p2_01, key_ls30_p2_00;
+
 wire pressed = ps2_key[9];
 
 always @(posedge clk_sys) begin 
@@ -438,6 +443,34 @@ always @(posedge clk_sys) begin
             'h04b: key_rot1_cw    <= pressed; // l
             'h042: key_rot1_ccw   <= pressed; // k
 
+            // Rotary1 LS-30 12 scancodes
+            'h035: key_ls30_p1_00  <= pressed; // y
+            'h03c: key_ls30_p1_01  <= pressed; // u
+            'h043: key_ls30_p1_02  <= pressed; // i
+            'h044: key_ls30_p1_03  <= pressed; // o
+            'h033: key_ls30_p1_04  <= pressed; // h
+            'h03b: key_ls30_p1_05  <= pressed; // j
+            'h042: key_ls30_p1_06  <= pressed; // k
+            'h04b: key_ls30_p1_07  <= pressed; // l
+            'h031: key_ls30_p1_08  <= pressed; // n
+            'h03a: key_ls30_p1_09  <= pressed; // m
+            'h041: key_ls30_p1_10  <= pressed; // ,
+            'h049: key_ls30_p1_11  <= pressed; // .
+
+            // Rotary2 LS-30 12 scancodes
+            'h070: key_ls30_p2_00  <= pressed; // 0 numeric keypad
+            'h069: key_ls30_p2_01  <= pressed; // 1 numeric keypad
+            'h072: key_ls30_p2_02  <= pressed; // 2 numeric keypad
+            'h07a: key_ls30_p2_03  <= pressed; // 3 numeric keypad
+            'h06b: key_ls30_p2_04  <= pressed; // 4 numeric keypad
+            'h073: key_ls30_p2_05  <= pressed; // 5 numeric keypad
+            'h074: key_ls30_p2_06  <= pressed; // 6 numeric keypad
+            'h06c: key_ls30_p2_07  <= pressed; // 7 numeric keypad
+            'h075: key_ls30_p2_08  <= pressed; // 8 numeric keypad
+            'h07d: key_ls30_p2_09  <= pressed; // 9 numeric keypad
+            'h07b: key_ls30_p2_10  <= pressed; // - numeric keypad
+            'h079: key_ls30_p2_11  <= pressed; // + numeric keypad
+
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
@@ -454,11 +487,15 @@ reg last_rot1_ccw ;
 reg last_rot2_cw ;
 reg last_rot2_ccw ;
 
+wire rotary_controller_type = status[19];
+
 always @ (posedge clk_sys) begin
     if ( reset == 1 ) begin
         rotary1 <= 12'h1 ;
         rotary2 <= 12'h1 ;
     end else begin
+    if ( rotary_controller_type == 0 ) begin
+        // controller type 0
         // did the button state change?
         if ( rot_inp_0_cw != last_rot1_cw ) begin 
             last_rot1_cw <= rot_inp_0_cw;
@@ -489,7 +526,11 @@ always @ (posedge clk_sys) begin
                 rotary2 <= { rotary2[10:0], rotary2[11] };
             end
         end
-
+    end else begin
+        // controller type 1
+          rotary1 <= ~ { key_ls30_p1_11, key_ls30_p1_10, key_ls30_p1_09, key_ls30_p1_08, key_ls30_p1_07, key_ls30_p1_06, key_ls30_p1_05, key_ls30_p1_04, key_ls30_p1_03, key_ls30_p1_02, key_ls30_p1_01, key_ls30_p1_00 } ;
+          rotary2 <= ~ { key_ls30_p2_11, key_ls30_p2_10, key_ls30_p2_09, key_ls30_p2_08, key_ls30_p2_07, key_ls30_p2_06, key_ls30_p2_05, key_ls30_p2_04, key_ls30_p2_03, key_ls30_p2_02, key_ls30_p2_01, key_ls30_p2_00 } ;
+    end
     end
 end
 
