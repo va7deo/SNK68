@@ -249,6 +249,7 @@ localparam CONF_STR = {
     "-;",
     "P3,Debug Settings;",
     "P3-;",
+    "P3OJ,Controller Type,Gamepad,LS-30;",    
     "P3o5,Text Layer,On,Off;",
     "P3o6,Foreground Layer,On,Off;",
     "P3o7,Background Layer,On,Off;",
@@ -362,6 +363,9 @@ always @ (posedge clk_sys ) begin
     end
 end
 
+wire rotary_controller_type = status[19];
+
+
 wire        p1_right   = joy0[0] | key_p1_right;
 wire        p1_left    = joy0[1] | key_p1_left;
 wire        p1_down    = joy0[2] | key_p1_down;
@@ -391,6 +395,9 @@ wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
 wire pressed = ps2_key[9];
+
+reg [11:0] key_ls30_p1;
+reg [11:0] key_ls30_p2;
 
 always @(posedge clk_sys) begin 
     reg old_state;
@@ -425,6 +432,34 @@ always @(posedge clk_sys) begin
             'h01b: key_p2_b       <= pressed; // s
             'h015: key_p2_c       <= pressed; // q
             'h01d: key_p2_d       <= pressed; // w
+            
+            // Rotary1 LS-30 12 scancodes
+            'h035: key_ls30_p1[0]  <= pressed; // y
+            'h03c: key_ls30_p1[1]  <= pressed; // u
+            'h043: key_ls30_p1[2]  <= pressed; // i
+            'h044: key_ls30_p1[3]  <= pressed; // o
+            'h033: key_ls30_p1[4]  <= pressed; // h
+            'h03b: key_ls30_p1[5]  <= pressed; // j
+            'h042: key_ls30_p1[6]  <= pressed; // k
+            'h04b: key_ls30_p1[7]  <= pressed; // l
+            'h031: key_ls30_p1[8]  <= pressed; // n
+            'h03a: key_ls30_p1[9]  <= pressed; // m
+            'h041: key_ls30_p1[10] <= pressed; // ,
+            'h049: key_ls30_p1[11] <= pressed; // .
+
+            // Rotary2 LS-30 12 scancodes
+            'h070: key_ls30_p2[0]  <= pressed; // 0 numeric keypad
+            'h069: key_ls30_p2[1]  <= pressed; // 1 numeric keypad
+            'h059: key_ls30_p2[2]  <= pressed; // numlock
+            'h07a: key_ls30_p2[3]  <= pressed; // 3 numeric keypad
+            'h07c: key_ls30_p2[4]  <= pressed; // *
+            'h073: key_ls30_p2[5]  <= pressed; // 5 numeric keypad
+            'h071: key_ls30_p2[6]  <= pressed; // .
+            'h06c: key_ls30_p2[7]  <= pressed; // 7 numeric keypad
+            'h07e: key_ls30_p2[8]  <= pressed; // scroll lock
+            'h07d: key_ls30_p2[9]  <= pressed; // 9 numeric keypad
+            'h07b: key_ls30_p2[10]  <= pressed; // - numeric keypad
+            'h079: key_ls30_p2[11]  <= pressed; // + numeric keypad            
 
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
@@ -442,40 +477,50 @@ reg last_rot1_ccw ;
 reg last_rot2_cw ;
 reg last_rot2_ccw ;
 
+wire rot1_cw  = joy0[12] | key_ls30_p1[0];
+wire rot1_ccw = joy0[13] | key_ls30_p1[1];
+wire rot2_cw  = joy1[12] | key_ls30_p2[0];
+wire rot2_ccw = joy1[13] | key_ls30_p2[1];
+
 always @ (posedge clk_sys) begin
     if ( reset == 1 ) begin
         rotary1 <= 12'h1 ;
         rotary2 <= 12'h1 ;
     end else begin
-        // did the button state change?
-        if ( joy0[12] != last_rot1_cw ) begin 
-            last_rot1_cw <= joy0[12];
-            // rotate right
-            if ( joy0[12] == 1 ) begin
-                rotary1 <= { rotary1[0], rotary1[11:1] };
+        if ( rotary_controller_type == 0 ) begin
+            // did the button state change?
+            if ( rot1_cw != last_rot1_cw ) begin 
+                last_rot1_cw <= rot1_cw;
+                // rotate right
+                if ( rot1_cw == 1 ) begin
+                    rotary1 <= { rotary1[0], rotary1[11:1] };
+                end
             end
-        end
 
-        if ( joy0[13] != last_rot1_ccw ) begin
-            last_rot1_ccw <= joy0[13];
-            // rotate left
-            if ( joy0[13] == 1 ) begin
-                rotary1 <= { rotary1[10:0], rotary1[11] };
+            if ( rot1_ccw != last_rot1_ccw ) begin
+                last_rot1_ccw <= rot1_ccw;
+                // rotate left
+                if ( rot1_ccw == 1 ) begin
+                    rotary1 <= { rotary1[10:0], rotary1[11] };
+                end
             end
-        end
 
-        if ( joy1[12] != last_rot2_cw ) begin
-            last_rot2_cw <= joy1[12];
-            if ( joy1[12] == 1 ) begin
-                rotary2 <= { rotary2[0], rotary2[11:1] };
+            if ( rot2_cw != last_rot2_cw ) begin
+                last_rot2_cw <= rot2_cw;
+                if ( rot2_cw == 1 ) begin
+                    rotary2 <= { rotary2[0], rotary2[11:1] };
+                end
             end
-        end
 
-        if ( joy1[13] != last_rot2_ccw ) begin
-            last_rot2_ccw <= joy1[13];
-            if ( joy1[13] == 1 ) begin
-                rotary2 <= { rotary2[10:0], rotary2[11] };
+            if ( rot2_ccw != last_rot2_ccw ) begin
+                last_rot2_ccw <= rot2_ccw;
+                if ( rot2_ccw == 1 ) begin
+                    rotary2 <= { rotary2[10:0], rotary2[11] };
+                end
             end
+        end else begin
+            rotary1 <= key_ls30_p1;
+            rotary2 <= key_ls30_p2;
         end
 
     end
