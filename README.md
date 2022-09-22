@@ -93,9 +93,26 @@ Location | PCB<br>Number | Chip | Use |
 SNKCLK   | A7007 (IK3) / A8007 (SAR) | [**SNK CLK**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_CLK.jpg?token=GHSAT0AAAAAABKJR6W75C2STVYR2QG4ATEEYY7PUUA) | Counter |
 SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_IO.jpg?token=GHSAT0AAAAAABKJR6W77E5OSYH66GBOXS76YY7PVIQ)  | Rotary |
 
-# PCB Features
+# Core Features
 
-- TBD.
+
+### Rotary Support
+
+- Rotary control is supported with a gamepad or custom firmware for LS-30 functionality with an RP2040. You can toggle this in the OSD under Debug Settings. Rotate CW should be mapped to the right trigger and Rotate CCW should be mapped to the left trigger when using a gamepad. Enable autofire and set to 160ms for Rotate CW/CCW in the MiSTer framework for smooth rotation. The LS-30 firmware requires no mapping and is plug and play via USB.
+
+### Native Y/C Output
+
+- Native Y/C ouput is possible with the [**analog I/O rev 6.1 pcb**](https://github.com/MiSTer-devel/Main_MiSTer/wiki/IO-Board). Using the following cables, [**HD-15 to BNC cable**](https://www.amazon.com/StarTech-com-Coax-RGBHV-Monitor-Cable/dp/B0033AF5Y0/) will transmit Y/C over the green and red lines. Choose an appropriate adapter to feed [**Y/C (S-Video)**](https://www.amazon.com/MEIRIYFA-Splitter-Extension-Monitors-Transmission/dp/B09N19XZJQ) to your display.
+
+### H/V Adjustments
+
+- There are two H/V toggles, H/V-sync positioning adjust and H/V-sync width adjust. Positioning will move the display for centering on CRT display. The sync width adjust can be used to for sync issues (rolling) without modifying the video timings.
+
+### Scandoubler Options
+
+- Additional toggle to enable the scandoubler without changing ini settings and new scanline option for 100% is available, this draws a black line every other frame. Below is an example.
+
+<table><tr><th>Scandoubler Fx</th><th>Scanlines 25%</th><th>Scanlines 50%</th><th>Scanlines 75%</th><th>Scanlines 100%</th><tr><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252689-acfb3610-89d9-4ec2-9f69-dc285d9cf6dd.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252701-2cd221dd-0e31-49c3-89ef-e0dcafdd4916.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252717-b4f7bd03-5e76-4e43-b055-1a418589a169.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252728-638d1a44-07ff-4060-918f-ebfb79a6f206.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252737-be45e006-c172-471a-80dd-ee1335cd8ede.png"></td></tr></table>
 
 # Controls
 
@@ -107,7 +124,7 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubuserconte
 
 ### Keyboard Handler
 
-- Keyboard inputs mapped to mame defaults for all functions.
+- Keyboard inputs mapped to mame defaults for the following functions.
 
 <br>
 
@@ -122,6 +139,16 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubuserconte
 |Debug|
 |--|
 |<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>Text Layer (TXT)</td><td>F7</td><tr><td>Sprite Layer (FG)</td><td>F8</td></tr><tr><td>Sprite Layer (BG)</td><td>F9</td><tr><td>Sprite Layer (OBJ)</td><td>F10</td></tr> </table>|
+
+<br>
+
+- Custom keyboard inputs mapped for LS-30 RP2040 firmware for Player 1 and Player 2.
+
+<br>
+
+|LS-30 Player 1|LS-30 Player 2|
+|--|--|
+|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P1 Rotary 1</td><td>Y</td></tr><tr><td>P1 Rotary 2</td><td>U</td></tr><tr><td>P1 Rotary 3</td><td>I</td></tr><tr><td>P1 Rotary 4</td><td>O</td></tr><tr><td>P1 Rotary 5</td><td>H</td></tr><tr><td>P1 Rotary 6</td><td>J</td></tr><tr><td>P1 Rotary 7</td><td>K</td></tr><tr><td>P1 Rotary 8</td><td>L</td></tr><tr><td>P1 Rotary 9</td><td>N</td></tr><tr><td>P1 Rotary 10</td><td>M</td></tr><tr><td>P1 Rotary 11</td><td>,</td></tr><tr><td>P1 Rotary 12</td><td>.</td></tr> </table> | <table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P2 Rotary 1</td><td>Z</td></tr><tr><td>P2 Rotary 2</td><td>X</td></tr><tr><td>P2 Rotary 3</td><td>C</td></tr><tr><td>P2 Rotary 4</td><td>V</td></tr><tr><td>P2 Rotary 5</td><td>B</td></tr><tr><td>P2 Rotary 6</td><td>W</td></tr><tr><td>P2 Rotary 7</td><td>E</td></tr><tr><td>P2 Rotary 8</td><td>T</td></tr><tr><td>P2 Rotary 9</td><td>3</td></tr><tr><td>P2 Rotary 10</td><td>4</td></tr><tr><td>P2 Rotary 11</td><td>7</td></tr><tr><td>P2 Rotary 12</td><td>8</td></tr> </table>|
 
 # Support
 

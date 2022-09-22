@@ -407,7 +407,7 @@ always @(posedge clk_sys) begin
         casex(ps2_key[8:0])
             'h016: key_start_1p   <= pressed; // 1
             'h01e: key_start_2p   <= pressed; // 2
-            'h02E: key_coin_a     <= pressed; // 5
+            'h02e: key_coin_a     <= pressed; // 5
             'h036: key_coin_b     <= pressed; // 6
             'h006: key_test       <= pressed; // f2
             'h004: key_reset      <= pressed; // f3
@@ -450,7 +450,7 @@ always @(posedge clk_sys) begin
             'h021: key_ls30_p2[2]  <= pressed; // c
             'h02a: key_ls30_p2[3]  <= pressed; // v
             'h032: key_ls30_p2[4]  <= pressed; // b
-            'h01d: key_ls30_p2[5]  <= pressed; // w
+            'h058: key_ls30_p2[5]  <= pressed; // caps lock
             'h024: key_ls30_p2[6]  <= pressed; // e
             'h02c: key_ls30_p2[7]  <= pressed; // t
             'h026: key_ls30_p2[8]  <= pressed; // 3
