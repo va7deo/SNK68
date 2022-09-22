@@ -434,32 +434,32 @@ always @(posedge clk_sys) begin
             'h01d: key_p2_d       <= pressed; // w
 
             // Rotary1 LS-30 P1 Scancodes
-            'h068: key_ls30_p1[0]  <= pressed; // f13
-            'h069: key_ls30_p1[1]  <= pressed; // f14
-            'h06a: key_ls30_p1[2]  <= pressed; // f15
-            'h06b: key_ls30_p1[3]  <= pressed; // f16
-            'h06c: key_ls30_p1[4]  <= pressed; // f17
-            'h06d: key_ls30_p1[5]  <= pressed; // f18
-            'h06e: key_ls30_p1[6]  <= pressed; // f19
-            'h06f: key_ls30_p1[7]  <= pressed; // f20
-            'h070: key_ls30_p1[8]  <= pressed; // f21
-            'h071: key_ls30_p1[9]  <= pressed; // f22
-            'h072: key_ls30_p1[10] <= pressed; // f23
-            'h073: key_ls30_p1[11] <= pressed; // f24
+            'h035: key_ls30_p1[0]  <= pressed; // y
+            'h03c: key_ls30_p1[1]  <= pressed; // u
+            'h043: key_ls30_p1[2]  <= pressed; // i
+            'h044: key_ls30_p1[3]  <= pressed; // o
+            'h033: key_ls30_p1[4]  <= pressed; // h
+            'h03b: key_ls30_p1[5]  <= pressed; // j
+            'h042: key_ls30_p1[6]  <= pressed; // k
+            'h04b: key_ls30_p1[7]  <= pressed; // l
+            'h031: key_ls30_p1[8]  <= pressed; // n
+            'h03a: key_ls30_p1[9]  <= pressed; // m
+            'h041: key_ls30_p1[10] <= pressed; // ,
+            'h049: key_ls30_p1[11] <= pressed; // .
 
             // Rotary1 LS-30 P2 Scancodes
-            'h087: key_ls30_p2[0]  <= pressed; // kanji1
-            'h088: key_ls30_p2[1]  <= pressed; // kanji2
-            'h089: key_ls30_p2[2]  <= pressed; // kanji3
-            'h08a: key_ls30_p2[3]  <= pressed; // kanji4
-            'h08b: key_ls30_p2[4]  <= pressed; // kanji5
-            'h08c: key_ls30_p2[5]  <= pressed; // kanji6
-            'h08d: key_ls30_p2[6]  <= pressed; // kanji7
-            'h08e: key_ls30_p2[7]  <= pressed; // kanji8
-            'h08f: key_ls30_p2[8]  <= pressed; // kanji9
-            'h090: key_ls30_p2[9]  <= pressed; // lang1
-            'h091: key_ls30_p2[10] <= pressed; // lang2
-            'h092: key_ls30_p2[11] <= pressed; // lang3
+            'h049: key_ls30_p2[0]  <= pressed; // ins
+            'h04a: key_ls30_p2[1]  <= pressed; // home
+            'h04b: key_ls30_p2[2]  <= pressed; // pgup
+            'h04c: key_ls30_p2[3]  <= pressed; // del
+            'h04d: key_ls30_p2[4]  <= pressed; // end
+            'h04e: key_ls30_p2[5]  <= pressed; // pgdn
+            'h062: key_ls30_p2[6]  <= pressed; // 0 numeric keypad
+            'h063: key_ls30_p2[7]  <= pressed; // . numeric keypad
+            'h059: key_ls30_p2[8]  <= pressed; // 1 numeric keypad
+            'h05b: key_ls30_p2[9]  <= pressed; // 3 numeric keypad
+            'h05d: key_ls30_p2[10] <= pressed; // 5 numeric keypad
+            'h05f: key_ls30_p2[11] <= pressed; // 7 numeric keypad
 
             'h083: key_txt_enable <= key_txt_enable ^ pressed; // f7
             'h00a: key_bg_enable  <= key_bg_enable  ^ pressed; // f8
