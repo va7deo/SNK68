@@ -448,18 +448,18 @@ always @(posedge clk_sys) begin
             'h049: key_ls30_p1[11] <= pressed; // .
 
             // Rotary1 LS-30 P2 Scancodes
-            'h049: key_ls30_p2[0]  <= pressed; // ins
-            'h04a: key_ls30_p2[1]  <= pressed; // home
-            'h04b: key_ls30_p2[2]  <= pressed; // pgup
-            'h04c: key_ls30_p2[3]  <= pressed; // del
-            'h04d: key_ls30_p2[4]  <= pressed; // end
-            'h04e: key_ls30_p2[5]  <= pressed; // pgdn
-            'h062: key_ls30_p2[6]  <= pressed; // 0 numeric keypad
-            'h063: key_ls30_p2[7]  <= pressed; // . numeric keypad
-            'h059: key_ls30_p2[8]  <= pressed; // 1 numeric keypad
-            'h05b: key_ls30_p2[9]  <= pressed; // 3 numeric keypad
-            'h05d: key_ls30_p2[10] <= pressed; // 5 numeric keypad
-            'h05f: key_ls30_p2[11] <= pressed; // 7 numeric keypad
+            'h01z: key_ls30_p2[0]  <= pressed; // z
+            'h022: key_ls30_p2[1]  <= pressed; // x
+            'h021: key_ls30_p2[2]  <= pressed; // c
+            'h02a: key_ls30_p2[3]  <= pressed; // v
+            'h032: key_ls30_p2[4]  <= pressed; // b
+            'h01d: key_ls30_p2[5]  <= pressed; // w
+            'h024: key_ls30_p2[6]  <= pressed; // e
+            'h02c: key_ls30_p2[7]  <= pressed; // t
+            'h026: key_ls30_p2[8]  <= pressed; // 3
+            'h025: key_ls30_p2[9]  <= pressed; // 4
+            'h03d: key_ls30_p2[10] <= pressed; // 7
+            'h03e: key_ls30_p2[11] <= pressed; // 8
 
             'h083: key_txt_enable <= key_txt_enable ^ pressed; // f7
             'h00a: key_bg_enable  <= key_bg_enable  ^ pressed; // f8
