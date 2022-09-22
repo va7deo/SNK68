@@ -388,11 +388,11 @@ wire        service = key_test;
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
-wire key_tilt, key_test, key_reset, key_service, key_pause;
-wire key_fg_enable, key_spr_enable;
+wire key_test, key_reset, key_service, key_pause;
+wire key_txt_enable, key_fg_enable, key_bg_enable, key_spr_enable;
 
-wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
-wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
+wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c;
+wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c;
 
 wire pressed = ps2_key[9];
 
@@ -412,7 +412,6 @@ always @(posedge clk_sys) begin
             'h006: key_test       <= pressed; // f2
             'h004: key_reset      <= pressed; // f3
             'h046: key_service    <= pressed; // 9
-            'h02c: key_tilt       <= pressed; // t
             'h04D: key_pause      <= pressed; // p
 
             'hX75: key_p1_up      <= pressed; // up
@@ -422,7 +421,6 @@ always @(posedge clk_sys) begin
             'h014: key_p1_a       <= pressed; // lctrl
             'h011: key_p1_b       <= pressed; // lalt
             'h029: key_p1_c       <= pressed; // spacebar
-            'h012: key_p1_d       <= pressed; // lshift
 
             'h02d: key_p2_up      <= pressed; // r
             'h02b: key_p2_down    <= pressed; // f
@@ -431,7 +429,6 @@ always @(posedge clk_sys) begin
             'h01c: key_p2_a       <= pressed; // a
             'h01b: key_p2_b       <= pressed; // s
             'h015: key_p2_c       <= pressed; // q
-            'h01d: key_p2_d       <= pressed; // w
 
             // Rotary1 LS-30 P1 Scancodes
             'h035: key_ls30_p1[0]  <= pressed; // y
