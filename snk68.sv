@@ -204,7 +204,7 @@ assign m68k_a[0] = 0;
 // 0         1         2         3          4         5         6   
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-// X   XXXXXX          XXX XXXXXXXX      XXXX                       
+// X   XXXXXX        XXXXX XXXXXXXX      XXXX                       
 
 wire [1:0]  aspect_ratio = status[9:8];
 wire        orientation = ~status[3];
@@ -215,7 +215,9 @@ wire [3:0]  vs_offset = status[31:28];
 wire [3:0]  hs_width  = status[59:56];
 wire [3:0]  vs_width  = status[63:60];
 
+wire gfx_tx_en = ~(status[37] | key_txt_enable);
 wire gfx_fg_en = ~(status[38] | key_fg_enable);
+wire gfx_bg_en = ~(status[39] | key_bg_enable);
 wire gfx_sp_en = ~(status[40] | key_spr_enable);
 
 assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd8 : 8'd7) : (aspect_ratio - 1'd1);
@@ -249,11 +251,12 @@ localparam CONF_STR = {
     "-;",
     "P3,Debug Settings;",
     "P3-;",
-    "P3OJ,Controller Type,Gamepad,LS-30;",    
-    "P3o5,Text Layer,On,Off;",
-    "P3o6,Foreground Layer,On,Off;",
-    "P3o7,Background Layer,On,Off;",
-    "P3o8,Sprite Layer,On,Off;",
+    "P3OJ,Rotary Type,Gamepad,LS-30;",
+    //"P3-;",
+    //"P3o5,Text Layer,On,Off;",
+    //"P3o6,Foreground Layer,On,Off;",
+    //"P3o7,Background Layer,On,Off;",
+    //"P3o8,Sprite Layer,On,Off;",
     "P3-;",
     "DIP;",
     "-;",
@@ -363,9 +366,6 @@ always @ (posedge clk_sys ) begin
     end
 end
 
-wire rotary_controller_type = status[19];
-
-
 wire        p1_right   = joy0[0] | key_p1_right;
 wire        p1_left    = joy0[1] | key_p1_left;
 wire        p1_down    = joy0[2] | key_p1_down;
@@ -383,16 +383,16 @@ wire        start2  = joy0[8]  | joy1[8]  | key_start_2p;
 wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
 wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
 wire        b_pause = joy0[11] | key_pause;
-wire        service = joy0[12] | key_test;
+wire        service = key_test;
 
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
-wire key_tilt, key_test, key_reset, key_service, key_pause;
-wire key_fg_enable, key_spr_enable;
+wire key_test, key_reset, key_service, key_pause;
+wire key_txt_enable, key_fg_enable, key_bg_enable, key_spr_enable;
 
-wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
-wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
+wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c;
+wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c;
 
 wire pressed = ps2_key[9];
 
@@ -407,12 +407,11 @@ always @(posedge clk_sys) begin
         casex(ps2_key[8:0])
             'h016: key_start_1p   <= pressed; // 1
             'h01e: key_start_2p   <= pressed; // 2
-            'h02E: key_coin_a     <= pressed; // 5
+            'h02e: key_coin_a     <= pressed; // 5
             'h036: key_coin_b     <= pressed; // 6
             'h006: key_test       <= pressed; // f2
             'h004: key_reset      <= pressed; // f3
             'h046: key_service    <= pressed; // 9
-            'h02c: key_tilt       <= pressed; // t
             'h04D: key_pause      <= pressed; // p
 
             'hX75: key_p1_up      <= pressed; // up
@@ -422,7 +421,6 @@ always @(posedge clk_sys) begin
             'h014: key_p1_a       <= pressed; // lctrl
             'h011: key_p1_b       <= pressed; // lalt
             'h029: key_p1_c       <= pressed; // spacebar
-            'h012: key_p1_d       <= pressed; // lshift
 
             'h02d: key_p2_up      <= pressed; // r
             'h02b: key_p2_down    <= pressed; // f
@@ -431,9 +429,8 @@ always @(posedge clk_sys) begin
             'h01c: key_p2_a       <= pressed; // a
             'h01b: key_p2_b       <= pressed; // s
             'h015: key_p2_c       <= pressed; // q
-            'h01d: key_p2_d       <= pressed; // w
-            
-            // Rotary1 LS-30 12 scancodes
+
+            // Rotary1 LS-30 P1 Scancodes
             'h035: key_ls30_p1[0]  <= pressed; // y
             'h03c: key_ls30_p1[1]  <= pressed; // u
             'h043: key_ls30_p1[2]  <= pressed; // i
@@ -447,20 +444,22 @@ always @(posedge clk_sys) begin
             'h041: key_ls30_p1[10] <= pressed; // ,
             'h049: key_ls30_p1[11] <= pressed; // .
 
-            // Rotary2 LS-30 12 scancodes
-            'h070: key_ls30_p2[0]  <= pressed; // 0 numeric keypad
-            'h069: key_ls30_p2[1]  <= pressed; // 1 numeric keypad
-            'h059: key_ls30_p2[2]  <= pressed; // numlock
-            'h07a: key_ls30_p2[3]  <= pressed; // 3 numeric keypad
-            'h07c: key_ls30_p2[4]  <= pressed; // *
-            'h073: key_ls30_p2[5]  <= pressed; // 5 numeric keypad
-            'h071: key_ls30_p2[6]  <= pressed; // .
-            'h06c: key_ls30_p2[7]  <= pressed; // 7 numeric keypad
-            'h07e: key_ls30_p2[8]  <= pressed; // scroll lock
-            'h07d: key_ls30_p2[9]  <= pressed; // 9 numeric keypad
-            'h07b: key_ls30_p2[10]  <= pressed; // - numeric keypad
-            'h079: key_ls30_p2[11]  <= pressed; // + numeric keypad            
+            // Rotary1 LS-30 P2 Scancodes
+            'h01z: key_ls30_p2[0]  <= pressed; // z
+            'h022: key_ls30_p2[1]  <= pressed; // x
+            'h021: key_ls30_p2[2]  <= pressed; // c
+            'h02a: key_ls30_p2[3]  <= pressed; // v
+            'h032: key_ls30_p2[4]  <= pressed; // b
+            'h058: key_ls30_p2[5]  <= pressed; // caps lock
+            'h024: key_ls30_p2[6]  <= pressed; // e
+            'h02c: key_ls30_p2[7]  <= pressed; // t
+            'h026: key_ls30_p2[8]  <= pressed; // 3
+            'h025: key_ls30_p2[9]  <= pressed; // 4
+            'h03d: key_ls30_p2[10] <= pressed; // 7
+            'h03e: key_ls30_p2[11] <= pressed; // 8
 
+            'h083: key_txt_enable <= key_txt_enable ^ pressed; // f7
+            'h00a: key_bg_enable  <= key_bg_enable  ^ pressed; // f8
             'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
             'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
@@ -476,6 +475,8 @@ reg last_rot1_cw ;
 reg last_rot1_ccw ;
 reg last_rot2_cw ;
 reg last_rot2_ccw ;
+
+wire rotary_controller_type = status[19];
 
 wire rot1_cw  = joy0[12] | key_ls30_p1[0];
 wire rot1_ccw = joy0[13] | key_ls30_p1[1];
