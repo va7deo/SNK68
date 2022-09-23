@@ -1,7 +1,7 @@
 
 # SNK M68000 (Ikari III) FPGA Implementation
 
-FPGA compatible core of SNK M68000 (Ikari III based)arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). FPGA implementation has been verified against schematics for Ikari III (A7007). PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Rescue (A7007).
+FPGA compatible core of SNK M68000 (Ikari III based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). FPGA implementation has been verified against schematics for Ikari III (A7007). PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Rescue (A7007).
 
 Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) and verified by [**Darren Olafson**](https://twitter.com/Darren__O). Other SNK68K PCB verification done by [**atrac17**](https://github.com/atrac17). The intent is for this core to be a 1:1 playable implementation of SNK M68000 (Ikari III) arcade hardware. Currently in **beta state**, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
@@ -35,6 +35,7 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 - GFX toggles for sprite layers [Task - Low Priority]  
 - Add rotary controller toggle per player [Task - Low Priority]  <br><br>
 - Correct screen flip for core, it is inverted but fully functional [Issue]  
+- Minor screen tearing present in Ikari III on vertical sprite scroll [Issue]  
 - Correct colour palette in P.O.W. - Prisoners of War (US Version 1); dependent on sprite location / action [Issue]  
 - Correct text layer in 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites) [Issue]  
 - Correct missing pixels during scrolling transitions for 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites) [Issue]  <br><br>
