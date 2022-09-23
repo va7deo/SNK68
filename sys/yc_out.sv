@@ -67,12 +67,16 @@ phase_t phase[MAX_PHASES];
 reg unsigned [7:0] Y, C, c, U, V;
 
 
-reg [10:0]  cburst_phase, cburst_length;    // colorburst counter 
+reg [10:0]  cburst_phase, cburst_length, cburst_start;     // colorburst counter 
 reg unsigned [7:0] vref = 'd128; // Voltage reference point (Used for Chroma)
-reg [7:0]  chroma_LUT_COS = 8'd0; // Chroma cos LUT reference
-reg [7:0]  chroma_LUT_SIN = 8'd0; // Chroma sin LUT reference 
-reg [7:0]  chroma_LUT_BURST = 8'd0; // Chroma colorburst LUT reference   
-reg [7:0]  chroma_LUT = 8'd0;  
+logic [7:0]  chroma_LUT_COS; // Chroma cos LUT reference
+logic [7:0]  chroma_LUT_SIN; // Chroma sin LUT reference 
+logic [7:0]  chroma_LUT_BURST; // Chroma colorburst LUT reference   
+logic [7:0]  chroma_LUT = 8'd0;  
+
+/*
+THe following LUT table was calculated by Sin(2*pi*t/2^8) where t: 0 - 255
+*/
 
 /*************************************
 		8 bit Sine look up Table
@@ -99,9 +103,9 @@ wire signed [10:0] chroma_SIN_LUT[256] = '{
 11'h7E7, 11'h7ED, 11'h7F3, 11'h7F9
 };
 
-reg [39:0] phase_accum;
-reg PAL_FLIP = 1'd0;
-reg	PAL_line_count = 1'd0;
+logic [39:0] phase_accum;
+logic PAL_FLIP = 1'd0;
+logic	PAL_line_count = 1'd0;
 
 /**************************************
 	Generate Luma and Chroma Signals
@@ -111,30 +115,31 @@ always_ff @(posedge clk) begin
 	for (logic [3:0] x = 0; x < (MAX_PHASES - 1'd1); x = x + 1'd1) begin
 		phase[x + 1] <= phase[x];
 	end
-	
-	// Generate the LUT values using the phase accumulator reference.
-	phase_accum <= phase_accum + PHASE_INC;
-	chroma_LUT <= phase_accum[39:32];
 
-	//	Red / Blue steps for improved timing of U / V calculations
+	// Color Averaging to help with color accuracy 
 	red_1 <= red;
 	blue_1 <= blue;
 	red_2 <= red_1;
 	blue_2 <= blue_1;
 
 	// Calculate Luma signal
+
 	yr <= {red, 8'd0} + {red, 5'd0}+ {red, 4'd0} + {red, 1'd0};
 	yg <= {green, 9'd0} + {green, 6'd0} + {green, 4'd0} + {green, 3'd0} + green;
 	yb <= {blue, 6'd0} + {blue, 5'd0} + {blue, 4'd0} + {blue, 2'd0} + blue;
 	phase[0].y <= yr + yg + yb;
-		
+
+	// Generate the LUT values using the phase accumulator reference.
+	phase_accum <= phase_accum + PHASE_INC;
+	chroma_LUT <= phase_accum[39:32];
+	
 	// Adjust SINE carrier reference for PAL (Also adjust for PAL Switch)
 	if (PAL_EN) begin
 		if (PAL_FLIP)
 			chroma_LUT_BURST <= chroma_LUT + 8'd160;
 		else
 			chroma_LUT_BURST <= chroma_LUT + 8'd96;
-	end else  // Adjust SINE carrier reference for NTSC (4 was added to 128 to improve the SMPTE color accuracy for NTSC)
+	end else  // Adjust SINE carrier reference for NTSC
 		chroma_LUT_BURST <= chroma_LUT + 8'd128;
 		
 	// Prepare LUT values for sin / cos (+90 degress)
@@ -153,13 +158,43 @@ always_ff @(posedge clk) begin
 	phase[3].c <= phase[2].c;
 
 	// Set Colorburst Length Based on Phase_Accum 
-	if (PHASE_INC > (PAL_EN ? 40'd120000000000 : 40'd100000000000)) begin
-		cburst_length <= 10'd140;
-	end else if (PHASE_INC < (PAL_EN ? 40'd74000000000 : 40'd59000000000)) begin
-		cburst_length <= 10'd300;
-	end else	
-		cburst_length <= 10'd180;
-	
+	// Since the colorburst length depends on the video clock freqency, this just sets the approprate count length to match the colorburst lengths closer to 9/10 cycles for NTSC/PAL.
+
+	if (PHASE_INC[39:32] > (PAL_EN ? 8'd56 : 8'd45)) begin
+		cburst_length <= PAL_EN ? 10'd85 : 10'd90;
+		cburst_start <= 10'd40;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd37 : 8'd30)) begin
+		cburst_length <= PAL_EN ? 10'd108 : 10'd115;
+		cburst_start <= 10'd40;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd28 : 8'd22)) begin
+		cburst_length <= PAL_EN ? 10'd130 : 10'd141;
+		cburst_start <= 10'd40;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd18 : 8'd15)) begin
+		cburst_length <= PAL_EN ? 10'd173 : 10'd186;
+		cburst_start <= 10'd60;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd16 : 8'd13)) begin
+		cburst_length <= PAL_EN ? 10'd195 : 10'd211;
+		cburst_start <= 10'd60;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd14 : 8'd11)) begin
+		cburst_length <= PAL_EN ? 10'd258 : 10'd276;
+		cburst_start <= 10'd100;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd12 : 8'd10)) begin
+		cburst_length <= PAL_EN ? 10'd281 : 10'd301;
+		cburst_start <= 10'd100;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd11 : 8'd9)) begin
+		cburst_length <= PAL_EN ? 10'd323 : 10'd346;
+		cburst_start <= 10'd120;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd10 : 8'd8)) begin
+		cburst_length <= PAL_EN ? 10'd346 : 10'd371;
+		cburst_start <= 10'd120;
+	end else if (PHASE_INC[39:32] > (PAL_EN ? 8'd9 : 8'd7)) begin
+		cburst_length <= PAL_EN ? 10'd368 : 10'd397;
+		cburst_start <= 10'd120;
+	end else begin
+		cburst_length <= PAL_EN ? 10'd391 : 10'd422;
+		cburst_start <= 10'd120;
+	end
+
 	if (hsync) begin // Reset colorburst counter, as well as the calculated cos / sin values.
 		cburst_phase <= 'd0; 	
 		phase[2].u <= 21'b0;	
@@ -171,13 +206,17 @@ always_ff @(posedge clk) begin
 			PAL_line_count <= ~PAL_line_count;
 		end
 	end	else begin // Generate Colorburst for 9 cycles 
-		if (cburst_phase >= 'd60 && cburst_phase <= cburst_length) begin // Start the color burst signal at 40 samples or 0.9 us
+		if (cburst_phase >= cburst_start && cburst_phase <= cburst_length) begin // Start the color burst signal at 40 samples or 0.9 us
 			// COLORBURST SIGNAL GENERATION (9 CYCLES ONLY or between count 40 - 240)
 			phase[2].u <= $signed({chroma_SIN_LUT[chroma_LUT_BURST],5'd0});
 			phase[2].v <= 21'b0;
 				
-			// Division to scale down the colorburst signal to match roughly 240mV peak to peak.  
-			phase[3].u <= $signed(phase[2].u[20:8]) + $signed(phase[2].u[20:10]) + $signed(phase[2].u[20:12]);
+			// Division to scale down the results to fit 8 bit. 
+			if (PAL_EN)
+				phase[3].u <= $signed(phase[2].u[20:8]) + $signed(phase[2].u[20:10]) + $signed(phase[2].u[20:14]);
+			else
+				phase[3].u <= $signed(phase[2].u[20:8]) + $signed(phase[2].u[20:11]) + $signed(phase[2].u[20:12]) + $signed(phase[2].u[20:13]);
+
 			phase[3].v <= phase[2].v;
 		end	else if (cburst_phase > cburst_length) begin  // MODULATE U, V for chroma 
 			/* 
@@ -223,3 +262,4 @@ end
 assign dout = {C, Y, 8'd0};
 
 endmodule
+

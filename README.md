@@ -3,7 +3,7 @@
 
 FPGA compatible core of SNK M68000 (Ikari III based)arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). FPGA implementation has been verified against schematics for Ikari III (A7007). PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Rescue (A7007).
 
-Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) and verified by [**Darren Olafson**](https://twitter.com/Darren__O). Other PCB verification done by [**atrac17**](https://github.com/atrac17). The intent is for this core to be a 1:1 playable implementation of SNK M68000 (Ikari III) arcade hardware. Currently in **alpha state**, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
+Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) and verified by [**Darren Olafson**](https://twitter.com/Darren__O). Other SNK68K PCB verification done by [**atrac17**](https://github.com/atrac17). The intent is for this core to be a 1:1 playable implementation of SNK M68000 (Ikari III) arcade hardware. Currently in **beta state**, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
 <p align="center">
@@ -12,12 +12,12 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 
 ## Supported Games
 
-| Title | PCB<br>Number | Status  | Released |
-|-------|---------------|---------|----------|
-| [**脱獄: Prisoners of War**](https://en.wikipedia.org/wiki/P.O.W.:_Prisoners_of_War)<br>P.O.W.: Prisoners of War | A7008         | Implemented | No |
-| [**怒III**](https://en.wikipedia.org/wiki/Ikari_III:_The_Rescue)<br>Ikari III: The Rescue                        | A7007         | Implemented | No |
-| [**Street Smart**](https://en.wikipedia.org/wiki/Street_Smart_(video_game))                                      | A7008 / A8007 | Implemented | No |
-| [**SAR: Search and Rescue**](http://snk.fandom.com/wiki/SAR:_Search_and_Rescue)                                  | A8007         | Implemented | No |
+| Title | PCB<br>Number | Status  | Released | ROM Set  |
+|-------|---------------|---------|----------|----------|
+| [**脱獄: Prisoners of War**](https://en.wikipedia.org/wiki/P.O.W.:_Prisoners_of_War)<br>P.O.W.: Prisoners of War | A7008         | Implemented | Yes | powj, powa  |
+| [**怒III**](https://en.wikipedia.org/wiki/Ikari_III:_The_Rescue)<br>Ikari III: The Rescue                        | A7007         | Implemented | Yes | .245 merged |
+| [**Street Smart**](https://en.wikipedia.org/wiki/Street_Smart_(video_game))                                      | A7008 / A8007 | Implemented | Yes | .245 merged |
+| [**SAR: Search and Rescue**](http://snk.fandom.com/wiki/SAR:_Search_and_Rescue)                                  | A8007         | Implemented | Yes | .245 merged |
 
 ## External Modules
 
@@ -30,7 +30,12 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 
 # Known Issues / Tasks
 
-- TBD.
+- Measure full timings from PCB(s) for analog output [Task - Low Priority]  
+- GFX toggles for sprite layers [Task - Low Priority]  <br><br>
+- Correct colour palette in P.O.W. - Prisoners of War (US Version 1); dependent on sprite location / action [Issue]  
+- Correct text layer in 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites) [Issue]  
+- Correct missing pixels during scrolling transitions for 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites) [Issue]  <br><br>
+- Audio issues known, may be an issue with the jtopl2 core or the current usage<br>(No need to report further audio issues; appears there are no audio issues in this core) [Issue]  
 
 # PCB Check List
 
@@ -91,14 +96,9 @@ C-18     | A7007 (IK3) / A8007 (SAR) | [**NEC uPD7759**](https://github.com/jote
 Location | PCB<br>Number | Chip | Use |
 ---------|---------------|------|-----|
 SNKCLK   | A7007 (IK3) / A8007 (SAR) | [**SNK CLK**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_CLK.jpg?token=GHSAT0AAAAAABKJR6W75C2STVYR2QG4ATEEYY7PUUA) | Counter |
-SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_IO.jpg?token=GHSAT0AAAAAABKJR6W77E5OSYH66GBOXS76YY7PVIQ)  | Rotary |
+SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubusercontent.com/va7deo/SNK68/main/doc/Custom%20Components/SNK_IO.jpg?token=GHSAT0AAAAAABKJR6W77E5OSYH66GBOXS76YY7PVIQ)  | Rotary  |
 
 # Core Features
-
-
-### Rotary Support
-
-- Rotary control is supported with a gamepad or custom firmware for LS-30 functionality with an RP2040. You can toggle this in the OSD under Debug Settings. Rotate CW should be mapped to the right trigger and Rotate CCW should be mapped to the left trigger when using a gamepad. Enable autofire and set to 160ms for Rotate CW/CCW in the MiSTer framework for smooth rotation. The LS-30 firmware requires no mapping and is plug and play via USB.
 
 ### Native Y/C Output
 
@@ -112,13 +112,19 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubuserconte
 
 - Additional toggle to enable the scandoubler without changing ini settings and new scanline option for 100% is available, this draws a black line every other frame. Below is an example.
 
-<table><tr><th>Scandoubler Fx</th><th>Scanlines 25%</th><th>Scanlines 50%</th><th>Scanlines 75%</th><th>Scanlines 100%</th><tr><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252689-acfb3610-89d9-4ec2-9f69-dc285d9cf6dd.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252701-2cd221dd-0e31-49c3-89ef-e0dcafdd4916.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252717-b4f7bd03-5e76-4e43-b055-1a418589a169.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252728-638d1a44-07ff-4060-918f-ebfb79a6f206.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191252737-be45e006-c172-471a-80dd-ee1335cd8ede.png"></td></tr></table>
+<table><tr><th>Scandoubler Fx</th><th>Scanlines 25%</th><th>Scanlines 50%</th><th>Scanlines 75%</th><th>Scanlines 100%</th><tr><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191898796-4daf3b2a-28d6-4cce-8ad0-cd3eae39ecb8.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191898801-ba4eb5e6-6965-4db1-9af4-5cd855bfb305.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191898805-efc048ba-0821-4d33-b509-c3284e37bb3b.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191898808-95aaf56b-bcc2-4570-8df2-2188df552f02.png"></td><td><br> <p align="center"><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/191898826-9d13fb8e-5ad7-4029-8cb1-9e736ec82212.png"></td></tr></table>
 
 # Controls
 
 <br>
 
-<table><tr><th>Game</th><th>Joystick</th><th>Service Menu</th><th>Control Type</th></tr><tr><td><p align="center">P.O.W.</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189564520-0420b015-bf00-46d4-83ff-f9f6c6b2e1d6.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Street Smart</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554369-4b2bfac6-ed0e-401c-b5af-a09713578243.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Ikari III</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554378-670bee3e-04e7-43e1-aac5-c8c21b976bdf.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">SAR</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img src="https://user-images.githubusercontent.com/32810066/189554390-1acb6dfe-fd93-4ebf-8aa8-043043ebf9b4.png"></td><td><p align="center">Co-Op</td> </table>
+<table><tr><th>Game</th><th>Joystick</th><th>Service Menu</th><th>Control Type</th></tr><tr><td><p align="center">P.O.W.</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/189564520-0420b015-bf00-46d4-83ff-f9f6c6b2e1d6.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Street Smart</p></td><td><p align="center">8-Way</p></td><td><p align="center"><br><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/189554369-4b2bfac6-ed0e-401c-b5af-a09713578243.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">Ikari III</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img width="128" height="112" src="https://user-images.githubusercontent.com/32810066/189554378-670bee3e-04e7-43e1-aac5-c8c21b976bdf.png"></td><td><p align="center">Co-Op</td><tr><td><p align="center">SAR</p></td><td><p align="center">8-Way or Rotary</p></td><td><p align="center"><br><img width="112" height="128" src="https://user-images.githubusercontent.com/32810066/189554390-1acb6dfe-fd93-4ebf-8aa8-043043ebf9b4.png"></td><td><p align="center">Co-Op</td> </table>
+
+<br>
+
+### Rotary Support
+
+- Rotary control is supported on gamepad or firmware written by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) for LS-30 functionality with an RP2040. There are toggles in the OSD under Debug Settings to select the rotary controller type per player. <br><br> Enabling autofire and setting to 160ms for Rotate CW/CCW in the MiSTer framework allows for smooth rotation; adjust the rate to fit your preference. LS-30 firmware requires no mapping and is plug and play; it is player dependent and connected over USB to the DE10-Nano.
 
 <br>
 
@@ -142,7 +148,7 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://raw.githubuserconte
 
 <br>
 
-- Custom keyboard inputs mapped for LS-30 RP2040 firmware for Player 1 and Player 2.
+- Custom keyboard inputs mapped for LS-30 RP2040 firmware functionality. The mapping is player dependent for the RP2040 firmware.
 
 <br>
 

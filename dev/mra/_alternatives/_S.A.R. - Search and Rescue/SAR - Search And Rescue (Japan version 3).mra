@@ -7,7 +7,7 @@
     <manufacturer>SNK</manufacturer>
     <region>Japan</region>
 
-    <switches default="ff,ff">
+    <switches default="7f,ff">
         <!-- DSW1 -->
         <dip name="Monitor Screen" bits="7" ids="Invert,Normal"/>
         <dip name="Bonus" bits="6" ids="Every,Second Only"/>
@@ -23,7 +23,7 @@
         <dip name="Test Mode" bits="8" ids="Manual Test,Normal Game"/>
     </switches>
 
-    <buttons names="Fire/Power Up,Jump,-,P1 Start,P2 Start,Coin A,Coin B,Pause" default="A,B,X,Y,R,L,Start"/>
+    <buttons names="Fire/Power Up,Jump,-,P1 Start,P2 Start,Coin A,Coin B,Pause,Rotate CW,Rotate CCW" default="A,B,X,Y,R,L,Start,Select,R1,L1"/>
 
     <rom index="1">
         <part>00</part>

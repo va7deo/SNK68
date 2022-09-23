@@ -7,7 +7,7 @@
     <manufacturer>SNK</manufacturer>
     <region>World</region>
 
-    <switches default="ff,ff">
+    <switches default="7f,ff">
         <!-- DSW1 -->
         <dip name="Monitor Screen" bits="7" ids="Invert,Normal"/>
         <dip name="Unknown" bits="6" ids="On,Off"/>

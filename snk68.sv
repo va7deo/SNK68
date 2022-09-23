@@ -204,7 +204,7 @@ assign m68k_a[0] = 0;
 // 0         1         2         3          4         5         6   
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-// X   XXXXXX          XXX XXXXXXXX      XXXX                       
+// X   XXXXXX        XXXXX XXXXXXXX      XXXX                       
 
 wire [1:0]  aspect_ratio = status[9:8];
 wire        orientation = ~status[3];
@@ -252,11 +252,11 @@ localparam CONF_STR = {
     "P3,Debug Settings;",
     "P3-;",
     "P3OJ,Rotary Type,Gamepad,LS-30;",
-    "P3-;",
-    "P3o5,Text Layer,On,Off;",
-    "P3o6,Foreground Layer,On,Off;",
-    "P3o7,Background Layer,On,Off;",
-    "P3o8,Sprite Layer,On,Off;",
+    //"P3-;",
+    //"P3o5,Text Layer,On,Off;",
+    //"P3o6,Foreground Layer,On,Off;",
+    //"P3o7,Background Layer,On,Off;",
+    //"P3o8,Sprite Layer,On,Off;",
     "P3-;",
     "DIP;",
     "-;",

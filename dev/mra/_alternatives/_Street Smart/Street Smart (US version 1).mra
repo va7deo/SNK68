@@ -7,7 +7,7 @@
     <manufacturer>SNK</manufacturer>
     <region>US</region>
 
-    <switches default="ff,ff">
+    <switches default="7f,ff">
         <!-- DSW1 -->
         <dip name="Monitor Screen" bits="7" ids="Invert,Normal"/>
         <dip name="Unknown" bits="6" ids="On,Off"/>
@@ -25,16 +25,16 @@
 
     <buttons names="Kick,Jump,Punch,P1 Start,P2 Start,Coin A,Coin B,Pause" default="A,B,X,Y,R,L,Start"/>
 
-    <switches default="ff,ff">
+    <switches default="7f,ff">
         <!-- DSW1 -->
         <dip name="Lives" bits="8,9" ids="2,3,1,4"/>
         <dip name="Coin A & B" bits="10,11" ids="1/1,1/2,2/1,Free Play"/>
-        <dip name="Unknown" bits="12" ids="Off,On"/>
+        <dip name="Unknown" bits="12" ids="On,Off"/>
         <dip name="Bonus Occurrence" bits="13" ids="1st & 2nd only,1st & every 2nd"/>
-        <dip name="Unknown" bits="14" ids="Off,On"/>
-        <dip name="Flip Screen" bits="15" ids="Off,On"/>
+        <dip name="Unknown" bits="14" ids="On,Off"/>
+        <dip name="Flip Screen" bits="15" ids="On,Off"/>
         <!-- DSW2 -->
-        <dip name="Service Mode" bits="24" ids="Off,On"/>
+        <dip name="Service Mode" bits="24" ids="On,Off"/>
         <dip name="Allow Continue" bits="25" ids="Yes,No"/>
         <dip name="Bonus Life" bits="26,27" ids="200k 400k,600k 800k,400k 600k,None"/>
         <dip name="Game Mode" bits="28,29" ids="Demo Sounds On,Infinite Lives,Demo Sounds Off,Freeze"/>
