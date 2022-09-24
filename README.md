@@ -34,7 +34,6 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 - Measure full timings from PCB(s) for analog output [Task - Low Priority]  
 - GFX toggles for sprite layers [Task - Low Priority]  
 - Add rotary controller toggle per player [Task - Low Priority]  <br><br>
-- Correct screen flip for core, it is inverted but fully functional [Issue]  
 - Minor screen tearing present in Ikari III on vertical sprite scroll [Issue]  
 - Correct colour palette in P.O.W. - Prisoners of War (US Version 1); dependent on sprite location / action [Issue]  
 - Correct text layer in 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites) [Issue]  

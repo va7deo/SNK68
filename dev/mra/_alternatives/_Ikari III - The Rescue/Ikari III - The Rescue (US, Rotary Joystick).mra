@@ -8,9 +8,9 @@
     <region>US</region>
     <joystick>Rotary</joystick>
 
-    <switches default="7f,7f">
+    <switches default="ff,7f">
         <!-- DSW1 -->
-        <dip name="Monitor Screen" bits="7" ids="Invert,Normal"/>
+        <dip name="Monitor Screen" bits="7" ids="Normal,Invert"/>
         <dip name="Blood" bits="6" ids="On,Off"/>
         <dip name="Second Bonus" bits="5" ids="20/50k(E),20/50K"/>
         <dip name="Unknown" bits="4" ids="On,Off"/>
