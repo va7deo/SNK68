@@ -527,9 +527,6 @@ always @ (posedge clk_sys) begin
     end
 end
 
-
-reg user_flip;
-
 wire pll_locked;
 
 wire clk_sys;
@@ -723,20 +720,11 @@ reg  [31:0] spr_pix_data;
 
 reg  [8:0] x;
 
-//t = (x / 8) + (y / 8) * 32;
-//
-//int addr;
-//// { t[10:0], y[2:0], x[3:1] }
-//int dx = x & 0x7;
-//int dy = y & 0x7;
-//
-//addr = (t << 5) + ( dy << 1 ) + (( dx < 4) ? 16 : 0 ) ;
-
 wire  [8:0] fg_x    = x  /* synthesis keep */;
-wire  [8:0] fg_y    = ( scr_flip == 0 ) ? vc : { vc[8], ~vc[7:0] } /* synthesis keep */; // & spr_flip_orientation  // scr_flip  ? ( 255 - vc ) :
+wire  [8:0] fg_y    = ( scr_flip == 0 ) ? vc : { vc[8], ~vc[7:0] } /* synthesis keep */; 
 
 wire  [8:0] sp_x    = x  /* synthesis keep */;
-wire  [8:0] sp_y    = ( scr_flip == 0 ) ? vc : { vc[8], ~vc[7:0] } /* synthesis keep */;  // & spr_flip_orientation
+wire  [8:0] sp_y    = ( scr_flip == 0 ) ? vc : { vc[8], ~vc[7:0] } /* synthesis keep */;  
 
 wire  [9:0] fg_tile = { x[7:3], ( scr_flip == 0 ) ? vc[7:3] : ~vc[7:3] } /* synthesis keep */;
 
@@ -1057,7 +1045,7 @@ always @ (posedge clk_sys) begin
                 end
                 
                 if ( m68k_scr_flip_cs == 1 ) begin
-                    scr_flip <= ~m68k_dout[3]  ;
+                    scr_flip <= m68k_dout[3]  ;
                     spr_flip_orientation <= m68k_dout[2] ;
                 end
  
