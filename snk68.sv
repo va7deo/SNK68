@@ -251,7 +251,8 @@ localparam CONF_STR = {
     "-;",
     "P3,Debug Settings;",
     "P3-;",
-    "P3OJ,Rotary Type,Gamepad,LS-30;",
+    "P3OI,P1 Rotary Type,Gamepad,LS-30;",
+    "P3OJ,P2 Rotary Type,Gamepad,LS-30;",
     //"P3-;",
     //"P3o5,Text Layer,On,Off;",
     //"P3o6,Foreground Layer,On,Off;",
@@ -476,7 +477,8 @@ reg last_rot1_ccw ;
 reg last_rot2_cw ;
 reg last_rot2_ccw ;
 
-wire rotary_controller_type = status[19];
+wire p1_rotary_controller_type = status[18];
+wire p2_rotary_controller_type = status[19];
 
 wire rot1_cw  = joy0[12] | key_ls30_p1[0];
 wire rot1_ccw = joy0[13] | key_ls30_p1[1];
@@ -488,7 +490,7 @@ always @ (posedge clk_sys) begin
         rotary1 <= 12'h1 ;
         rotary2 <= 12'h1 ;
     end else begin
-        if ( rotary_controller_type == 0 ) begin
+        if ( p1_rotary_controller_type == 0 ) begin
             // did the button state change?
             if ( rot1_cw != last_rot1_cw ) begin 
                 last_rot1_cw <= rot1_cw;
@@ -505,7 +507,11 @@ always @ (posedge clk_sys) begin
                     rotary1 <= { rotary1[10:0], rotary1[11] };
                 end
             end
+        end else begin
+            rotary1 <= key_ls30_p1;
+        end
 
+        if ( p2_rotary_controller_type == 0 ) begin
             if ( rot2_cw != last_rot2_cw ) begin
                 last_rot2_cw <= rot2_cw;
                 if ( rot2_cw == 1 ) begin
@@ -520,10 +526,8 @@ always @ (posedge clk_sys) begin
                 end
             end
         end else begin
-            rotary1 <= key_ls30_p1;
             rotary2 <= key_ls30_p2;
         end
-
     end
 end
 
