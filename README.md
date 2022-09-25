@@ -104,7 +104,7 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://github.com/va7deo/S
 
 ### Rotary Joystick Support
 
-- Rotary control is supported via gamepad or firmware written by [**atrac17**](https://github.com/atrac17) / [**DJ Hard Rich**](https://twitter.com/djhardrich) for [**LS-30 functionality using an RP2040**](). Latency verification done by [**misteraddons**](https://github.com/misteraddons), for more information click [**here**](https://rpubs.com/misteraddons/inputlatency).
+- Rotary control is supported via gamepad or firmware written by [**atrac17**](https://github.com/atrac17) / [**DJ Hard Rich**](https://twitter.com/djhardrich) for [**LS-30 functionality using an RP2040**](https://github.com/va7deo/SNK68/tree/main/dev/rp2040). Latency verification done by [**misteraddons**](https://github.com/misteraddons), for more information click [**here**](https://rpubs.com/misteraddons/inputlatency).
 
 <br>
 

@@ -12,7 +12,7 @@ LS-30 Rotary Encoder | RP2040 | Wired USB | 1ms | 2241 | 95.52% | 0.747 ms | 2e8
 
 ### Build Instructions
 
-- Download [**Arduino IDE**](https://www.arduino.cc/en/software) for Windows and follow the tutorial below. The set preferences url can be found [**here**](https://github.com/earlephilhower/arduino-pico). For more information, view the [**LS-30 P1 RP2040.ino**]().
+- Download [**Arduino IDE**](https://www.arduino.cc/en/software) for Windows and follow the tutorial below. The set preferences url can be found [**here**](https://github.com/earlephilhower/arduino-pico). For more information, view the [**LS-30 P1 RP2040.ino**](https://github.com/va7deo/SNK68/blob/main/dev/rp2040/LS-30_P1_RP2040/LS-30_P1_RP2040.ino).
 
 
 | Open File | Select File | Set Preferences | Install RP2040 |
