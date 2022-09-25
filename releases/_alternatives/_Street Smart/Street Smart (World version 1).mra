@@ -9,7 +9,7 @@
 
     <switches default="ff,ff">
         <!-- DSW1 -->
-        <dip name="Monitor Screen" bits="7" ids="Normal,Invert"/>
+        <dip name="Monitor Screen" bits="7" ids="Invert,Normal"/>
         <dip name="Unknown" bits="6" ids="On,Off"/>
         <dip name="Second Bonus" bits="5" ids="2nd Extend,Every Extend"/>
         <dip name="Unknown" bits="4" ids="On,Off"/>

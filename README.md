@@ -3,7 +3,7 @@
 
 FPGA compatible core of SNK M68000 (Ikari III based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). FPGA implementation has been verified against schematics for Ikari III (A7007). PCB measurements taken from Datsugoku: Prisoners of War (A7008), Street Smart (A8007), and Ikari III: The Rescue (A7007).
 
-Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) and verified by [**Darren Olafson**](https://twitter.com/Darren__O). Other SNK68K PCB verification done by [**atrac17**](https://github.com/atrac17). The intent is for this core to be a 1:1 playable implementation of SNK M68000 (Ikari III) arcade hardware. Currently in **beta state**, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
+Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**DJ Hard Rich**](https://twitter.com/djhardrich) and verified by [**Darren Olafson**](https://twitter.com/Darren__O). Other SNK68K PCB verification done by [**atrac17**](https://github.com/atrac17). The intent is for this core to be a 1:1 playable implementation of SNK M68000 (Ikari III) arcade hardware. Currently in **beta state**, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
 <p align="center">
@@ -32,8 +32,7 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**djhardri
 # Known Issues / Tasks
 
 - Measure full timings from PCB(s) for analog output [Task - Low Priority]  
-- GFX toggles for sprite layers [Task - Low Priority]  
-- Add rotary controller toggle per player [Task - Low Priority]  <br><br>
+- GFX toggles for sprite layers [Task - Low Priority]  <br><br>
 - Minor screen tearing present in Ikari III on vertical sprite scroll [Issue]  
 - Correct colour palette in P.O.W. - Prisoners of War (US Version 1); dependent on sprite location / action [Issue]  
 - Correct text layer in 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites) [Issue]  
@@ -103,6 +102,18 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://github.com/va7deo/S
 
 # Core Features
 
+### Rotary Joystick Support
+
+- Rotary control is supported via gamepad or firmware written by [**atrac17**](https://github.com/atrac17) / [**DJ Hard Rich**](https://twitter.com/djhardrich) for [**LS-30 functionality using an RP2040**](). Latency verification done by [**misteraddons**](https://github.com/misteraddons), for more information click [**here**](https://rpubs.com/misteraddons/inputlatency).
+
+<br>
+
+Model | Device | Connection | USB Polling<br>Interval | Sample<br>Number | Frame<br>Probability | Average<br>Latency | Joystick ID |
+------|--------|------------|-------------------------|------------------|----------------------|--------------------|-------------|
+LS-30 Rotary Encoder | RP2040 | Wired USB | 1ms | 2241 | 95.52% | 0.747 ms | 2e8a:000a |
+
+<br>
+
 ### Native Y/C Output
 
 - Native Y/C ouput is possible with the [**analog I/O rev 6.1 pcb**](https://github.com/MiSTer-devel/Main_MiSTer/wiki/IO-Board). Using the following cables, [**HD-15 to BNC cable**](https://www.amazon.com/StarTech-com-Coax-RGBHV-Monitor-Cable/dp/B0033AF5Y0/) will transmit Y/C over the green and red lines. Choose an appropriate adapter to feed [**Y/C (S-Video)**](https://www.amazon.com/MEIRIYFA-Splitter-Extension-Monitors-Transmission/dp/B09N19XZJQ) to your display.
@@ -121,7 +132,7 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://github.com/va7deo/S
 
 <br>
 
-- Service menu is accessed by holding the F2 key on boot. Service dip is active for Ikari III, Street Smarts requires this dip to be toggled before resetting the core and holding F2.
+- Service menu is accessed by holding the F2 key on boot. Service dip is functional for Ikari III. P.O.W. and SAR: Search and Rescue require holding the F2 key on boot. Street Smarts requires the service dip to be toggled before resetting the core and holding F2.
 
 <br>
 
@@ -129,9 +140,9 @@ SNKI/O   | A7007 (IK3) / A8007 (SAR) | [**SNK I/O**](https://github.com/va7deo/S
 
 <br>
 
-### Rotary Support
+### Rotary Joystick Support
 
-- Rotary control is supported on gamepad or firmware written by [**atrac17**](https://github.com/atrac17) / [**djhardrich**](https://twitter.com/djhardrich) for LS-30 functionality with an RP2040. There are toggles in the OSD under Debug Settings to select the rotary controller type per player. <br><br> Enabling autofire and setting to 160ms for Rotate CW/CCW in the MiSTer framework allows for smooth rotation; adjust the rate to fit your preference. LS-30 firmware requires no mapping and is plug and play; it is player dependent and connected over USB to the DE10-Nano.
+- Rotary control is supported via gamepad or firmware written by [**atrac17**](https://github.com/atrac17) / [**DJ Hard Rich**](https://twitter.com/djhardrich) for LS-30 functionality using an RP2040. There are toggles in the OSD under Debug Settings to select the rotary controller type per player. <br><br> When using a gamepad, enabling autofire and setting to 160ms for Rotate CW/CCW in the MiSTer framework allows for smooth rotation; adjust the rate to fit your preference. LS-30 firmware requires no mapping and is plug and play; it is player dependent and connected over USB to the DE10-Nano.
 
 <br>
 

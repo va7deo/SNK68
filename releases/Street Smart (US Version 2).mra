@@ -9,7 +9,7 @@
 
     <switches default="ff,ff">
         <!-- DSW1 -->
-        <dip name="Monitor Screen" bits="7" ids="Normal,Invert"/>
+        <dip name="Monitor Screen" bits="7" ids="Invert,Normal"/>
         <dip name="Unknown" bits="6" ids="On,Off"/>
         <dip name="Second Bonus" bits="5" ids="2nd Extend,Every Extend"/>
         <dip name="Unknown" bits="4" ids="On,Off"/>
@@ -60,8 +60,6 @@
             <part name="stsmart.904" crc="167346f7" map="0021"/>
             <part name="stsmart.905" crc="a5beb4e2" map="2100"/>
         </interleave>
-        <!-- plds - starts at 0x400000 -->
-        <part name="pl20l10a.1n" crc=""/>
-        <!-- Total 0x4000CC bytes - 4096 kBytes -->
+        <!-- Total 0x400000 bytes - 4096 kBytes -->
     </rom>
 </misterromdescription>
