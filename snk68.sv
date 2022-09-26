@@ -781,8 +781,8 @@ always @ (posedge clk_sys) begin
             if ( pcb == 0 ) begin
                 fg_rom_addr <= { fg_ram_dout[10:0], ~fg_x[2], fg_y[2:0] } ;
             end else begin
-                // POW only has 256 text tiles
-                fg_rom_addr <= { 3'b0, fg_ram_dout[7:0], ~fg_x[2], fg_y[2:0] } ;
+                // POW only has 256 text tiles in each bank.  offset selects bank
+                fg_rom_addr <= { tile_offset, fg_ram_dout[7:0], ~fg_x[2], fg_y[2:0] } ;
             end
             // bit [15] is the priority [14:12] is the colour
             fg_colour   <=   fg_ram_dout[15:12];
@@ -999,6 +999,7 @@ end
 
 reg spr_flip_orientation ;
 reg scr_flip ;
+reg [2:0] tile_offset;
 
 /// 68k cpu
 always @ (posedge clk_sys) begin
@@ -1011,6 +1012,7 @@ always @ (posedge clk_sys) begin
         m68k_latch <= 0;
         spr_flip_orientation <= 0;
         scr_flip <= 0;
+        tile_offset <= 0;
     end else begin
         if ( clk_18M == 1 ) begin
             // tell 68k to wait for valid data. 0=ready 1=wait
@@ -1051,6 +1053,9 @@ always @ (posedge clk_sys) begin
                 if ( m68k_scr_flip_cs == 1 ) begin
                     scr_flip <= m68k_dout[3]  ;
                     spr_flip_orientation <= m68k_dout[2] ;
+                    if ( pcb > 0 ) begin
+                        tile_offset <= m68k_dout[6:4] ;
+                    end
                 end
  
                 if ( m_invert_ctrl_cs == 1 ) begin
