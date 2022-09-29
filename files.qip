@@ -1,4 +1,4 @@
-set_global_assignment -name SDC_FILE snk68k.sdc
+#set_global_assignment -name SDC_FILE snk68.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE snk68.sv
 set_global_assignment -name QIP_FILE rtl/t80/T80.qip
 set_global_assignment -name QIP_FILE rtl/fx86k/fx68k.qip
