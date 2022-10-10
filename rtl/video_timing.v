@@ -31,10 +31,14 @@ wire [8:0] HS_END     = HBL_START + 73 + $signed(hs_offset) + $signed(hs_width);
 wire [8:0] HTOTAL     = 383;
 
 wire [8:0] v_ofs = 0;
+wire [8:0] vs_start_calc = VBL_START + 16 + $signed(vs_offset) ;
+wire [8:0] vs_end_calc   = VBL_START + 24 + $signed(vs_offset) + $signed(vs_width);
+
 wire [8:0] VBL_START  = 241 ;
 wire [8:0] VBL_END    = 17 ;
-wire [8:0] VS_START   = VBL_START + 13 + $signed(vs_offset);
-wire [8:0] VS_END     = VBL_START + 21 + $signed(vs_offset) + $signed(vs_width);
+// if sync wraps around substract the v total
+wire [8:0] VS_START   = ( vs_start_calc <= VTOTAL ) ? vs_start_calc : ( vs_start_calc - VTOTAL );
+wire [8:0] VS_END     = ( vs_end_calc   <= VTOTAL ) ? vs_end_calc   : ( vs_end_calc   - VTOTAL );
 wire [8:0] VTOTAL     = 263 ;
 
 
@@ -81,15 +85,15 @@ always @ (posedge clk) begin
             vbl <= 0;
         end
    
-        if ( v == (VS_START ) ) begin
+        if ( v == VS_START ) begin
             vsync <= 1;
-        end else if ( v == (VS_END ) ) begin
+        end else if ( v == VS_END ) begin
             vsync <= 0;
         end
 
-        if ( h == (HS_START ) ) begin
+        if ( h == HS_START ) begin
             hsync <= 1;
-        end else if ( h == (HS_END ) ) begin
+        end else if ( h == HS_END ) begin
             hsync <= 0;
         end
     end
