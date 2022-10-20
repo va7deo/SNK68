@@ -15,7 +15,7 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**DJ Hard 
 | Title | PCB<br>Number | Status  | Released | ROM Set  |
 |-------|---------------|---------|----------|----------|
 | [**脱獄: Prisoners of War**](https://en.wikipedia.org/wiki/P.O.W.:_Prisoners_of_War)<br>P.O.W.: Prisoners of War | A7008         | Implemented | Yes | .245 merged |
-| [**怒III**](https://en.wikipedia.org/wiki/Ikari_III:_The_Rescue)<br>Ikari III: The Rescue                        | A7007         | Implemented | W.I.P | .245 merged |
+| [**怒III**](https://en.wikipedia.org/wiki/Ikari_III:_The_Rescue)<br>Ikari III: The Rescue                        | A7007         | Implemented | Yes | .245 merged |
 | [**Street Smart**](https://en.wikipedia.org/wiki/Street_Smart_(video_game))                                      | A7008 / A8007 | Implemented | Yes   | .245 merged |
 | [**SAR: Search and Rescue**](http://snk.fandom.com/wiki/SAR:_Search_and_Rescue)                                  | A8007         | Implemented | Yes   | .245 merged |
 
@@ -31,13 +31,13 @@ Ikari III PCB donated by [**atrac17**](https://github.com/atrac17) / [**DJ Hard 
 
 # Known Issues / Tasks
 
-- Measure full timings from PCB(s) for analog output [Task - Low Priority]  
-- GFX toggles for sprite layers [Task - Low Priority]  <br><br>
-- Minor screen tearing present in Ikari III on vertical sprite scroll [Issue]  
+- GFX toggles for sprite layers [Task - Low Priority]  
+- ~~Measure full timings from PCB(s) for analog output~~ [Task - Low Priority]  <br><br>
+- Minor screen tearing present in Ikari III, sprites updating midscreen / check int and memory access  [Issue]  
 - ~~Correct colour palette in P.O.W. - Prisoners of War (US Version 1); dependent on sprite location / action~~ [Issue]  
 - ~~Correct text layer in 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites)~~ [Issue]  
-- ~~Correct missing pixels during scrolling transitions for 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites)~~ [Issue]  <br><br>
-- Audio issues known, may be an issue with the jtopl2 core or the current usage<br>(No need to report further audio issues; appears there are no audio issues in this core) [Issue]  
+- ~~Correct missing pixels during scrolling transitions for 脱獄 / P.O.W. - Prisoners of War (US Version 1, Mask ROM Sprites)~~ [Issue]  
+- ~~Audio issues known, may be an issue with the jtopl2 core or the current usage~~ [Issue]  
 
 # PCB Check List
 
@@ -49,9 +49,9 @@ FPGA implementation has been verified against schematics [**schematics**](https:
 
 H-Sync      | V-Sync      | Source   | PCB<br>Number  |
 ------------|-------------|----------|----------------|
-15.625kHz   | 59.185606Hz | [**DSLogic+**](https://github.com/va7deo/SNK68/blob/main/doc/A7008%20(P.O.W.)/PCB%20Measurements/POW_CSYNC_50MHz.png) | A7008 (P.O.W.) |
-15.625kHz   | 59.185606Hz | TBD                                                                                                                   | A7007 (IK3)    |
-15.625kHz   | 59.185606Hz | DSLogic+                                                                                                              | A8007 (SS)     |
+15.625kHz   | 59.185606Hz | [**DSLogic+**](https://github.com/va7deo/SNK68/blob/main/doc/A7008%20(P.O.W.)/PCB%20Measurements/POW_CSYNC_50MHz.png)        | A7008 (P.O.W.) |
+15.625kHz   | 59.185606Hz | [**ADALM2000**](https://github.com/va7deo/SNK68/blob/main/doc/A7007%20(Ikari%20III)/PCB%20Measurements/IKARI3_20MHz_VBL.png) | A7007 (IK3)    |
+15.625kHz   | 59.185606Hz | DSLogic+                                                                                                                     | A8007 (SS)     |
 
 ### Crystal Oscillators
 
